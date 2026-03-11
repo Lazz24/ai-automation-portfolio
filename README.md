@@ -23,6 +23,7 @@ ai-automation-portfolio/
 ├── 10-streamlit-realestate-poc/
 ├── 11-portfolio-infrastructure/
 ├── 12-brandgpt-positioning/
+├── 13-csrd-compass/
 ├── .gitignore
 └── README.md
 ```
@@ -45,6 +46,7 @@ ai-automation-portfolio/
 | 10 | Streamlit Real Estate Intelligence POC | Streamlit · Python | POC |
 | 11 | Portfolio Infrastructure System | GitHub · Markdown · JSON | Active |
 | 12 | BrandGPT / Personal Positioning System | AI Prompting · Brand Strategy | Active |
+| 13 | CSRD Compass | Make · Groq · Airtable · Notion · Gmail · JS | Live |
 
 ---
 
@@ -66,7 +68,7 @@ ai-automation-portfolio/
 | Automation | Zapier · n8n · Make |
 | Data / CRM | Airtable · ClickUp · Notion |
 | Lead sourcing | Apollo.io · LinkedIn |
-| Interfaces | Streamlit · Netlify · Vanilla JS |
+| Interfaces | Streamlit · Netlify · GitHub Pages · Vanilla JS |
 | Communication | Slack · Gmail |
 | Infrastructure | GitHub · JSON · Markdown |
 
