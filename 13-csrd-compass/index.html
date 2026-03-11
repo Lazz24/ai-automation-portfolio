@@ -1044,7 +1044,7 @@
 // ============================================================
 // CONFIGURATION — replace with your Make webhook URL
 // ============================================================
-const WEBHOOK_URL = 'YOUR_MAKE_WEBHOOK_URL_HERE';
+const WEBHOOK_URL = 'https://hook.eu1.make.com/ilq9ew8nbd50locwp2hrf96maw9sbr5m';
 
 // ============================================================
 // QUESTIONS DATA
@@ -1308,6 +1308,7 @@ async function submitAssessment() {
   try {
     const res = await fetch(WEBHOOK_URL, {
       method: 'POST',
+      mode: 'no-cors',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
