@@ -975,66 +975,20 @@
   <!-- RESULTS SCREEN -->
   <div class="screen" id="screen-results">
     <div class="results-screen">
-      <div class="results-header">
-        <div class="results-tag">Assessment Complete</div>
-        <div class="results-company" id="rCompany"></div>
-        <div class="results-deadline" id="rDeadline"></div>
+      <div style="text-align:center;padding:48px 0 32px;">
+        <div style="width:72px;height:72px;border-radius:50%;background:rgba(232,184,75,0.15);border:2px solid #E8B84B;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;font-size:32px;">✓</div>
+        <div class="results-tag" style="margin-bottom:16px;">Assessment Complete</div>
+        <h2 style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--text-primary);margin:0 0 12px;">Your report is on its way.</h2>
+        <p style="font-size:15px;color:var(--text-muted);line-height:1.7;max-width:420px;margin:0 auto 8px;">
+          We've analysed your responses and sent a full CSRD Readiness Report to
+        </p>
+        <p style="font-size:15px;color:#E8B84B;font-weight:600;margin:0 auto 32px;" id="rEmailConfirm"></p>
+        <p style="font-size:13px;color:var(--text-muted);line-height:1.7;max-width:380px;margin:0 auto 48px;">
+          The report includes your readiness score, pillar breakdown, priority gaps, and a personalised action plan aligned with EU CSRD requirements.
+        </p>
+        <button class="btn btn-primary" onclick="restartAssessment()" style="margin-bottom:16px;">Start New Assessment</button>
       </div>
-
-      <div class="score-card">
-        <div class="score-main">
-          <div class="score-number" id="rScore">0</div>
-          <div class="score-unit">%</div>
-          <div class="score-meta">
-            <div class="score-tier" id="rTier"></div>
-            <div class="score-urgency" id="rUrgency"></div>
-          </div>
-        </div>
-        <div class="score-bar-wrap">
-          <div class="score-bar-track">
-            <div class="score-bar-fill" id="rScoreBar"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="pillars-grid">
-        <div class="pillar-card">
-          <div class="pillar-name">Environment</div>
-          <div class="pillar-score" id="rEnv">—</div>
-          <div class="pillar-bar-track"><div class="pillar-bar-fill" id="rEnvBar"></div></div>
-        </div>
-        <div class="pillar-card">
-          <div class="pillar-name">Social</div>
-          <div class="pillar-score" id="rSoc">—</div>
-          <div class="pillar-bar-track"><div class="pillar-bar-fill" id="rSocBar"></div></div>
-        </div>
-        <div class="pillar-card">
-          <div class="pillar-name">Governance</div>
-          <div class="pillar-score" id="rGov">—</div>
-          <div class="pillar-bar-track"><div class="pillar-bar-fill" id="rGovBar"></div></div>
-        </div>
-      </div>
-
-      <div class="result-section">
-        <div class="section-title">Executive Summary</div>
-        <div class="executive-summary" id="rSummary"></div>
-      </div>
-
-      <div class="result-section">
-        <div class="section-title">Priority Gaps</div>
-        <div id="rGaps"></div>
-      </div>
-
-      <div class="result-section">
-        <div class="section-title">Action Plan</div>
-        <div id="rActions"></div>
-      </div>
-
-      <div class="results-footer">
-        <p class="footer-note">Your results have been saved. A detailed report will be sent to your email address.</p>
-        <button class="btn btn-ghost" onclick="restartAssessment()" style="margin-bottom:32px;">Start New Assessment</button>
-        <div class="footer-brand">Powered by <span>CSRD Compass</span></div>
-      </div>
+      <div class="footer-brand">Powered by <span>CSRD Compass</span></div>
     </div>
   </div>
 
@@ -1355,7 +1309,7 @@ function showDemoResults() {
 function renderResults(data) {
   showScreen('results');
 
-  document.getElementById('rCompany').textContent = companyName;
+  document.getElementById('rEmailConfirm').textContent = email;
   document.getElementById('rDeadline').textContent = data.company_profile.reporting_deadline;
   document.getElementById('rSummary').textContent = data.executive_summary;
 
