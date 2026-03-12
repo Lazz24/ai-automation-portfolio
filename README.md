@@ -1,72 +1,55 @@
-# AI Automation & GTM Systems — Portfolio
-> **Builder-focused. Prompt-driven. Rebuild-ready.**
+# AI Automation Portfolio
+### Laszlo Sándor
 
-This repository documents a working portfolio of AI automation systems, GTM infrastructure, and operational tooling built across Apollo, Zapier, n8n, Airtable, OpenAI, Groq, ClickUp, Streamlit, Netlify, and GitHub.
+AI automation systems, GTM infrastructure, and operational tooling — 14 projects built on Apollo, Zapier, OpenAI, Airtable, n8n, Make.com, Groq, and Netlify.
 
-Every project reflects real architecture decisions, real constraints, and real workflows. Each folder contains enough context to understand, replicate, or extend the system from scratch using the rebuild-from-prompt protocol.
-
----
-
-## Repository Structure
-
-```
-ai-automation-portfolio/
-├── 01-funding-intelligence-engine/
-├── 02-b2b-lead-qualification/
-├── 03-executive-intelligence-engine/
-├── 04-grant-monitor-bot/
-├── 05-techport-radar-scoring/
-├── 06-n8n-operational-automation/
-├── 07-linkedin-connection-scaling/
-├── 08-hunter-harvest-gtm/
-├── 09-funding-dashboard-architecture/
-├── 10-streamlit-realestate-poc/
-├── 11-portfolio-infrastructure/
-├── 12-brandgpt-positioning/
-├── 13-csrd-compass/
-├── .gitignore
-└── README.md
-```
+**Live demo:** [fundingintelligenceengine.netlify.app](https://fundingintelligenceengine.netlify.app)
+**CSRD Compass:** [lazz24.github.io/ai-automation-portfolio/13-csrd-compass](https://lazz24.github.io/ai-automation-portfolio/13-csrd-compass/)
 
 ---
 
-## Projects at a Glance
+## How This Repo Is Structured
+
+Each project folder contains a README documenting:
+- What the system does
+- Full architecture and pipeline
+- Key design decisions
+- Airtable / CRM schema where applicable
+- Rebuild-from-prompt protocol
+- Known constraints and iteration notes
+
+Blueprint level only. Actual prompts, schemas, and code live in a private repository.
+
+---
+
+## Projects
 
 | # | Project | Stack | Status |
 |---|---------|-------|--------|
-| 01 | Funding Intelligence Engine | Groq · Airtable · Netlify · JS | Live |
-| 02 | B2B Lead Qualification Pipeline | Apollo · Zapier · OpenAI · Airtable | Production |
-| 03 | Apollo → AI → Executive Intelligence Engine | Apollo · OpenAI · Zapier · Slack | Active |
-| 04 | Grant Monitor Bot | Zapier · ClickUp · OpenAI | Active |
-| 05 | TechPort Radar & Signal Scoring Engine | Airtable · Zapier · Apollo | Active |
-| 06 | n8n Operational Automation Systems | n8n · JSON · Webhooks | Active |
-| 07 | LinkedIn Connection Scaling System | Apollo · LinkedIn · Zapier | Active |
-| 08 | Hunter vs Harvest GTM Structuring | Apollo · Airtable · Zapier | Active |
-| 09 | Funding Action Items Dashboard | ClickUp · Zapier · Airtable | Design |
-| 10 | Streamlit Real Estate Intelligence POC | Streamlit · Python | POC |
-| 11 | Portfolio Infrastructure System | GitHub · Markdown · JSON | Active |
-| 12 | BrandGPT / Personal Positioning System | AI Prompting · Brand Strategy | Active |
-| 13 | CSRD Compass | Make · Groq · Airtable · Notion · Gmail · JS | Live |
+| [01](./01-funding-intelligence-engine/) | Funding Intelligence Engine | Groq · Airtable · Netlify · Vanilla JS | 🟢 Live |
+| [02](./02-b2b-lead-qualification/) | B2B Lead Qualification Pipeline | Apollo · Zapier · OpenAI · Airtable | 🟢 Production |
+| [03](./03-executive-intelligence-engine/) | Executive Intelligence Engine | Apollo · OpenAI · Zapier · Airtable · Slack | 🔵 Active |
+| [04](./04-grant-monitor-bot/) | Grant Monitor Bot | Zapier · ClickUp · OpenAI | 🔵 Active |
+| [05](./05-techport-radar-scoring/) | TechPort Radar & Signal Scoring Engine | Airtable · Zapier · Apollo | 🔵 Active |
+| [06](./06-n8n-operational-automation/) | n8n Operational Automation Systems | n8n · JSON · POS data · Webhooks | 🔵 Active |
+| [07](./07-linkedin-connection-scaling/) | LinkedIn Connection Scaling System | Apollo · LinkedIn · Zapier | 🔵 Active |
+| [08](./08-hunter-harvest-gtm/) | Hunter vs Harvest GTM Structuring | Apollo · Airtable · Zapier | 🔵 Active |
+| [09](./09-funding-dashboard-architecture/) | Funding Action Items Dashboard Architecture | ClickUp · Zapier · Airtable | 🟡 Design |
+| [10](./10-streamlit-realestate-poc/) | Streamlit Real Estate Intelligence POC | Streamlit · Python · Local | 🟣 POC |
+| [11](./11-portfolio-infrastructure/) | Portfolio Infrastructure System | GitHub · Markdown · JSON | 🔵 Active |
+| [12](./12-brandgpt-positioning/) | BrandGPT / Personal Positioning System | AI Prompting · Brand Strategy · LinkedIn | 🔵 Active |
+| [13](./13-csrd-compass/) | CSRD Compass — Sustainability Readiness Tool | Make.com · Groq · Airtable · Notion · Gmail · HTML/JS | 🟢 Live |
+| [14](./14-ai-helpdesk-triage/) | AI-Powered Help Desk Triage | Zapier · OpenAI · ClickUp · Airtable · Slack | 🟢 Live |
 
 ---
 
-## Design Principles
-
-- **Rebuild-from-prompt** — every project is documented so it can be fully reconstructed from its prompt set, architecture notes, and tool config
-- **Constraint-first design** — systems are built around real limitations: budget, time, data access, platform restrictions
-- **No fluff** — documentation describes what the system does and how it was built
-- **Separate demo from ops** — client-facing interfaces are built separately from production backends
-- **Security-aware** — API keys, credentials, and sensitive identifiers are excluded from all committed files
-
----
-
-## Tech Stack Reference
+## Stack
 
 | Layer | Tools |
 |-------|-------|
 | AI / LLMs | OpenAI API · Groq (Llama 3.3 70B) · Anthropic Claude |
-| Automation | Zapier · n8n · Make |
-| Data / CRM | Airtable · ClickUp · Notion |
+| Automation | Zapier · Make.com · n8n |
+| Data / CRM | Airtable · Notion · ClickUp |
 | Lead sourcing | Apollo.io · LinkedIn |
 | Interfaces | Streamlit · Netlify · GitHub Pages · Vanilla JS |
 | Communication | Slack · Gmail |
@@ -74,20 +57,34 @@ ai-automation-portfolio/
 
 ---
 
-## Folder Contents Standard
+## Design Principles
 
-Each project folder contains:
+**One-button UX for client tools**
+Decision makers get a single action. The pipeline complexity is invisible. Demo interfaces are always built separately from production backends.
 
-```
-README.md       → system overview, architecture, components, rebuild prompts
-prompts/        → AI prompt files used in the system
-schemas/        → Airtable configs, JSON structures, field maps
-workflows/      → Zapier/n8n exports or workflow descriptions
-notes/          → design decisions, constraints, iteration logs
-```
+**Rebuild-from-prompt standard**
+Every project is documented so it can be fully reconstructed from its prompt set, architecture notes, and tool configuration — without access to the original build.
 
-Only folders that have content are included per project.
+**Constraint-first design**
+Systems are built around real limitations: free-tier APIs, no-code platform restrictions, budget and time pressure. Constraints produce cleaner architecture.
+
+**Separate demo from ops**
+Client-facing interfaces are always built separately from production backends. The operational system handles real data; the demo handles presentations.
+
+**Security by default**
+API keys stored as encrypted environment variables. This public repo contains only blueprint-level documentation. Actual prompts, schemas, and code live in a private repository.
 
 ---
 
-*This portfolio is maintained as a living document. Systems are updated as they evolve in production.*
+## Status Key
+
+| Badge | Meaning |
+|-------|---------|
+| 🟢 Live / Production | Deployed and running |
+| 🔵 Active | Built and operational |
+| 🟡 Design | Architecture complete, build pending |
+| 🟣 POC | Proof of concept, pre-production |
+
+---
+
+*All systems documented to a rebuild-from-prompt standard — any project can be fully reconstructed from its architecture notes and prompt set.*
