@@ -1,0 +1,73 @@
+# 14 — AI-Powered Help Desk Triage
+
+**Stack:** Zapier · OpenAI (GPT-4o-mini) · ClickUp · Airtable · Slack  
+**Type:** Email Automation Pipeline  
+**Status:** Live
+
+---
+
+## What It Does
+
+Incoming support emails are automatically classified by AI into urgency levels and categories, routed to the correct ClickUp list, logged to Airtable, and — for high-urgency tickets — an instant Slack alert is fired to the response team. Low-complexity tickets receive an AI-generated draft reply saved directly in the task.
+
+No human touches the ticket until it's already triaged, routed, and ready to act on.
+
+---
+
+## Pipeline
+
+```
+Support Email Received
+        ↓
+Zapier Email Inbox (trigger)
+        ↓
+OpenAI GPT-4o-mini — classifies urgency, category, owner, generates draft reply
+        ↓
+Airtable — logs every ticket to Ticket Log
+        ↓
+Paths split by urgency
+        ↓
+🔴 High → ClickUp High Priority List + Slack Alert to #help-desk-alerts
+🟡 Medium → ClickUp Medium Priority List
+🟢 Low → ClickUp Low Priority List (draft reply included in task)
+```
+
+---
+
+## AI Classification Output
+
+Each email is classified into:
+
+| Field | Values |
+|---|---|
+| Urgency | High / Medium / Low |
+| Category | Billing / Technical / Account / General |
+| Summary | One sentence description of the issue |
+| Owner | billing-team / tech-team / account-team / general-team |
+| Draft Reply | Auto-generated for Low urgency tickets only |
+
+---
+
+## Key Design Decisions
+
+- **Code by Zapier over AI by Zapier** — direct OpenAI API calls are more reliable and avoid Zapier's native AI authentication issues
+- **Airtable logging before path split** — every ticket is recorded regardless of which path it takes
+- **Fallback handling in code** — if the OpenAI call fails for any reason, the ticket defaults to Medium/General so nothing is silently dropped
+- **GPT-4o-mini** — sufficient for classification tasks at a fraction of the cost of GPT-4o
+
+---
+
+## Airtable Schema
+
+Base: `Help Desk Triage` — Table: `Ticket Log`
+
+Fields: Timestamp · From · Subject · Urgency · Category · Summary · Owner · Draft Reply · Status
+
+---
+
+## Potential Extensions
+
+- Auto-send draft replies for Low urgency tickets via Gmail
+- Escalation reminders if High tickets remain unresolved after X hours
+- Weekly digest report from Airtable data
+- Client-facing demo interface (single URL, paste email, see triage result)
