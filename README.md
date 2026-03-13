@@ -3,9 +3,12 @@
 
 AI automation systems, GTM infrastructure, and operational tooling — 14 projects built on Apollo, Zapier, OpenAI, Airtable, n8n, Make.com, Groq, and Netlify.
 
-**Live demo:** [fundingintelligenceengine.netlify.app](https://fundingintelligenceengine.netlify.app)
-**CSRD Compass:** [lazz24.github.io/ai-automation-portfolio/13-csrd-compass](https://lazz24.github.io/ai-automation-portfolio/13-csrd-compass/)
-**Net Zero Roadmap Generator:** [lazz24.github.io/ai-automation-portfolio/15-net-zero-roadmap](https://lazz24.github.io/ai-automation-portfolio/15-net-zero-roadmap/)
+AI automation systems, GTM infrastructure, and operational tooling — 15 projects built on Apollo, Zapier, OpenAI, Airtable, Make.com, Groq, Cloudflare Workers, Supabase, and Netlify.
+
+**Live demos:**
+- 🟢 [Funding Intelligence Engine](https://fundingintelligenceengine.netlify.app)
+- 🟢 [CSRD Compass](https://lazz24.github.io/ai-automation-portfolio/13-csrd-compass/)
+- 🟢 [Net Zero Roadmap Generator](https://lazz24.github.io/ai-automation-portfolio/15-net-zero-roadmap/)
 ---
 
 ## How This Repo Is Structured
