@@ -40,7 +40,7 @@ Blueprint level only. Actual prompts, schemas, and code live in a private reposi
 | [12](./12-brandgpt-positioning/) | BrandGPT / Personal Positioning System | AI Prompting · Brand Strategy · LinkedIn | 🔵 Active |
 | [13](./13-csrd-compass/) | CSRD Compass — Sustainability Readiness Tool | Make.com · Groq · Airtable · Notion · Gmail · HTML/JS | 🟢 Live |
 | [14](./14-ai-helpdesk-triage/) | AI-Powered Help Desk Triage | Zapier · OpenAI · ClickUp · Airtable · Slack | 🟢 Live |
-| 15 | [Net Zero Roadmap Generator](./15-net-zero-roadmap/) | Groq · Cloudflare Workers · Supabase · jsPDF | [Live Demo](https://lazz24.github.io/ai-automation-portfolio/15-net-zero-roadmap/) |
+| [15](./15-net-zero-roadmap/) | Net Zero Roadmap Generator | Groq · Cloudflare Workers · Supabase · jsPDF | 🟢 Live ||
 
 ---
 
