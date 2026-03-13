@@ -5,7 +5,7 @@ AI automation systems, GTM infrastructure, and operational tooling — 14 projec
 
 **Live demo:** [fundingintelligenceengine.netlify.app](https://fundingintelligenceengine.netlify.app)
 **CSRD Compass:** [lazz24.github.io/ai-automation-portfolio/13-csrd-compass](https://lazz24.github.io/ai-automation-portfolio/13-csrd-compass/)
-
+**Net Zero Roadmap Generator:** [lazz24.github.io/ai-automation-portfolio/15-net-zero-roadmap](https://lazz24.github.io/ai-automation-portfolio/15-net-zero-roadmap/)
 ---
 
 ## How This Repo Is Structured
