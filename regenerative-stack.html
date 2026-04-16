@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Regenerative Stack — A Vision for IJmond</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=JetBrains+Mono:wght@300;400;500&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg: #06090b;
+  --surface: #0b1117;
+  --surface2: #0f1820;
+  --border: #1a2830;
+  --border2: #243540;
+  --accent: #00c896;
+  --accent2: #0088ff;
+  --accent3: #ff6b35;
+  --accent4: #c8a000;
+  --text: #ddeaf2;
+  --text-dim: #6a8a9a;
+  --text-muted: #2a3d4a;
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-body: 'Libre Baskerville', Georgia, serif;
+}
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.35;
+}
+section { position: relative; z-index: 1; }
+
+/* NAV DOTS */
+#nav-dots {
+  position: fixed; right: 1.5rem; top: 50%;
+  transform: translateY(-50%);
+  display: flex; flex-direction: column; gap: 0.9rem;
+  z-index: 100;
+}
+.nav-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--border2); cursor: pointer;
+  transition: all 0.3s; border: 1px solid var(--border2);
+}
+.nav-dot.active { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 8px var(--accent); }
+.nav-dot:hover { background: var(--text-dim); }
+
+/* SHARED */
+.section-label {
+  font-family: var(--font-mono); font-size: 0.68rem;
+  letter-spacing: 0.3em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 1.4rem;
+  opacity: 0; transform: translateY(18px);
+  transition: all 0.6s ease;
+}
+.section-label.visible { opacity: 1; transform: translateY(0); }
+h1,h2,h3 { font-family: var(--font-display); }
+.fade-up {
+  opacity: 0; transform: translateY(28px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.fade-up.visible { opacity: 1; transform: translateY(0); }
+
+/* ── LAYER 1 ── */
+#layer-1 {
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  justify-content: center; align-items: center;
+  text-align: center; padding: 4rem 2rem;
+  position: relative; overflow: hidden;
+}
+#layer-1::before {
+  content: ''; position: absolute;
+  top: -20%; left: -10%; width: 55%; height: 70%;
+  background: radial-gradient(ellipse, rgba(0,200,150,0.055) 0%, transparent 70%);
+  pointer-events: none;
+}
+#layer-1::after {
+  content: ''; position: absolute;
+  bottom: -15%; right: -5%; width: 45%; height: 55%;
+  background: radial-gradient(ellipse, rgba(0,136,255,0.04) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hook-eyebrow {
+  font-family: var(--font-mono); font-size: 0.68rem;
+  letter-spacing: 0.35em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 1.8rem;
+  opacity: 0; animation: fadeUp 0.8s ease 0.2s forwards;
+}
+.hook-question {
+  font-family: var(--font-display);
+  font-size: clamp(1.9rem, 4.5vw, 3.6rem);
+  font-weight: 700; line-height: 1.2;
+  max-width: 800px; margin-bottom: 1.8rem;
+  opacity: 0; animation: fadeUp 0.9s ease 0.5s forwards;
+}
+.hook-question em { font-style: italic; color: var(--accent); }
+.hook-subtext {
+  font-family: var(--font-body); font-size: 1rem;
+  color: var(--text-dim); max-width: 520px;
+  margin-bottom: 3rem; font-style: italic;
+  opacity: 0; animation: fadeUp 0.9s ease 0.8s forwards;
+}
+.stats-row {
+  display: flex; gap: 2.5rem;
+  justify-content: center; flex-wrap: wrap;
+  margin-bottom: 3.5rem;
+  opacity: 0; animation: fadeUp 0.9s ease 1.1s forwards;
+}
+.stat-block { text-align: center; position: relative; }
+.stat-block::after {
+  content: ''; position: absolute;
+  right: -1.25rem; top: 15%; height: 70%; width: 1px;
+  background: var(--border2);
+}
+.stat-block:last-child::after { display: none; }
+.stat-number {
+  font-family: var(--font-mono);
+  font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+  font-weight: 500; color: var(--accent);
+  display: block; line-height: 1; margin-bottom: 0.4rem;
+}
+.stat-label {
+  font-family: var(--font-mono); font-size: 0.62rem;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--text-dim); max-width: 130px; line-height: 1.4;
+}
+.hook-frame {
+  font-family: var(--font-mono); font-size: 0.78rem;
+  color: var(--text-dim); border: 1px solid var(--border2);
+  padding: 0.85rem 1.6rem; max-width: 580px; line-height: 1.65;
+  opacity: 0; animation: fadeUp 0.9s ease 1.4s forwards;
+  position: relative;
+}
+.hook-frame::before {
+  content: ''; position: absolute;
+  top: 0; left: 0; width: 36px; height: 2px;
+  background: var(--accent);
+}
+.scroll-hint {
+  position: absolute; bottom: 2rem; left: 50%;
+  transform: translateX(-50%);
+  display: flex; flex-direction: column;
+  align-items: center; gap: 0.4rem;
+  opacity: 0; animation: fadeUp 0.9s ease 2s forwards;
+}
+.scroll-hint span {
+  font-family: var(--font-mono); font-size: 0.58rem;
+  letter-spacing: 0.3em; text-transform: uppercase;
+  color: var(--text-muted);
+}
+.scroll-arrow {
+  width: 1px; height: 36px;
+  background: linear-gradient(to bottom, var(--accent), transparent);
+  animation: scrollPulse 2s ease infinite;
+}
+
+/* ── LAYER 2 ── */
+#layer-2 {
+  min-height: 100vh; padding: 6rem 2rem;
+  max-width: 1200px; margin: 0 auto;
+}
+.players-intro { max-width: 580px; margin-bottom: 3.5rem; }
+.players-intro h2 {
+  font-size: clamp(1.7rem, 2.8vw, 2.6rem);
+  font-weight: 700; margin-bottom: 0.9rem; line-height: 1.2;
+}
+.players-intro p { color: var(--text-dim); font-size: 0.92rem; font-style: italic; }
+.players-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  gap: 1px; background: var(--border); border: 1px solid var(--border);
+}
+.player-card {
+  background: var(--surface); padding: 2.2rem;
+  position: relative; overflow: hidden;
+  cursor: default; transition: background 0.3s ease;
+}
+.player-card:hover { background: var(--surface2); }
+.player-card.tata::before {
+  content: ''; position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,107,53,0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,107,53,0.035) 1px, transparent 1px);
+  background-size: 22px 22px; pointer-events: none;
+}
+.player-card.kapitein::before {
+  content: ''; position: absolute;
+  top: -30%; right: -15%; width: 55%; height: 70%;
+  background: radial-gradient(ellipse, rgba(0,136,255,0.07) 0%, transparent 70%);
+  pointer-events: none; animation: plasmaShift 4s ease infinite alternate;
+}
+.player-card.weather::before {
+  content: ''; position: absolute; inset: 0;
+  background-image: repeating-linear-gradient(
+    -45deg, transparent, transparent 17px,
+    rgba(0,200,150,0.022) 17px, rgba(0,200,150,0.022) 18px
+  );
+  pointer-events: none;
+}
+.player-tag {
+  font-family: var(--font-mono); font-size: 0.58rem;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  margin-bottom: 1.1rem; display: inline-block;
+  padding: 0.22rem 0.55rem; border: 1px solid;
+}
+.tata .player-tag { color: var(--accent3); border-color: var(--accent3); }
+.kapitein .player-tag { color: var(--accent2); border-color: var(--accent2); }
+.weather .player-tag { color: var(--accent); border-color: var(--accent); }
+.player-name {
+  font-family: var(--font-display); font-size: 1.4rem;
+  font-weight: 700; margin-bottom: 0.3rem;
+}
+.player-sub {
+  font-family: var(--font-mono); font-size: 0.62rem;
+  color: var(--text-dim); letter-spacing: 0.08em; margin-bottom: 1.3rem;
+}
+.player-divider { height: 1px; background: var(--border2); margin-bottom: 1.3rem; }
+.player-row { margin-bottom: 0.9rem; }
+.player-row-label {
+  font-family: var(--font-mono); font-size: 0.58rem;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--text-muted); margin-bottom: 0.25rem;
+}
+.player-row-text { font-size: 0.82rem; color: var(--text-dim); line-height: 1.55; }
+.player-row-text.proven { color: var(--text); font-style: italic; }
+.player-gap {
+  margin-top: 1.3rem; padding-top: 1.1rem;
+  border-top: 1px dashed var(--border2);
+}
+.player-gap-label {
+  font-family: var(--font-mono); font-size: 0.58rem;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--text-muted); margin-bottom: 0.25rem;
+}
+.player-gap-text { font-size: 0.8rem; color: var(--text-dim); font-style: italic; line-height: 1.5; }
+.connector-row {
+  display: flex; align-items: center; justify-content: center;
+  gap: 0; margin-top: 2rem;
+  opacity: 0; transition: opacity 0.8s ease 0.4s;
+}
+.connector-row.visible { opacity: 1; }
+.connector-dot { width: 7px; height: 7px; border-radius: 50%; border: 1px solid var(--border2); }
+.connector-line-dashed {
+  flex: 1; height: 1px; max-width: 180px;
+  background: repeating-linear-gradient(
+    90deg, var(--border2) 0px, var(--border2) 5px,
+    transparent 5px, transparent 12px
+  );
+}
+.connector-label {
+  font-family: var(--font-mono); font-size: 0.58rem;
+  letter-spacing: 0.12em; color: var(--text-muted);
+  text-transform: uppercase; padding: 0 0.9rem; text-align: center;
+}
+
+/* ── LAYER 3 ── */
+#layer-3 {
+  min-height: 100vh; padding: 6rem 2rem;
+  display: flex; flex-direction: column;
+  align-items: center; position: relative; overflow: hidden;
+}
+#layer-3::before {
+  content: ''; position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 550px; height: 550px;
+  background: radial-gradient(ellipse, rgba(0,200,150,0.035) 0%, transparent 65%);
+  pointer-events: none;
+}
+.loop-intro { text-align: center; max-width: 580px; margin-bottom: 2.5rem; }
+.loop-intro h2 { font-size: clamp(1.7rem, 2.8vw, 2.5rem); font-weight: 700; margin-bottom: 0.75rem; }
+.loop-intro p { color: var(--text-dim); font-style: italic; font-size: 0.92rem; }
+#loop-diagram { width: 100%; max-width: 680px; height: 560px; position: relative; }
+.loop-tooltip {
+  position: fixed; background: var(--surface2);
+  border: 1px solid var(--border2); padding: 0.9rem 1.1rem;
+  max-width: 250px; pointer-events: none;
+  opacity: 0; transition: opacity 0.2s ease; z-index: 200;
+}
+.loop-tooltip-title {
+  font-family: var(--font-display); font-size: 0.9rem;
+  font-weight: 700; margin-bottom: 0.35rem; color: var(--accent);
+}
+.loop-tooltip-text { font-size: 0.75rem; color: var(--text-dim); line-height: 1.5; }
+.loop-tooltip-stat {
+  font-family: var(--font-mono); font-size: 0.66rem;
+  color: var(--accent); margin-top: 0.45rem;
+}
+.loop-legend {
+  display: flex; gap: 1.8rem; flex-wrap: wrap;
+  justify-content: center; margin-top: 1.8rem;
+  opacity: 0; transition: opacity 0.8s ease;
+}
+.loop-legend.visible { opacity: 1; }
+.legend-item {
+  display: flex; align-items: center; gap: 0.45rem;
+  font-family: var(--font-mono); font-size: 0.6rem;
+  letter-spacing: 0.08em; color: var(--text-dim); text-transform: uppercase;
+}
+.legend-dot { width: 7px; height: 7px; border-radius: 50%; }
+
+/* ── LAYER 4 ── */
+#layer-4 {
+  min-height: 100vh; padding: 6rem 2rem;
+  display: flex; flex-direction: column;
+  align-items: center; position: relative;
+}
+.gap-intro { text-align: center; max-width: 620px; margin-bottom: 2.5rem; }
+.gap-intro h2 { font-size: clamp(1.7rem, 2.8vw, 2.5rem); font-weight: 700; margin-bottom: 0.75rem; }
+.gap-intro p { color: var(--text-dim); font-style: italic; font-size: 0.92rem; }
+#gap-diagram { width: 100%; max-width: 680px; height: 560px; position: relative; margin-bottom: 2.5rem; }
+.gap-points {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 1px; background: var(--border); border: 1px solid var(--border);
+  max-width: 880px; width: 100%; margin-bottom: 2.2rem;
+}
+.gap-point {
+  background: var(--surface); padding: 1.6rem;
+  opacity: 0; transform: translateY(14px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.gap-point.visible { opacity: 1; transform: translateY(0); }
+.gap-point-icon {
+  font-family: var(--font-mono); font-size: 1.1rem;
+  margin-bottom: 0.7rem; display: block;
+}
+.gap-point-title {
+  font-family: var(--font-display); font-size: 0.9rem;
+  font-weight: 700; margin-bottom: 0.35rem;
+}
+.gap-point-text { font-size: 0.76rem; color: var(--text-dim); line-height: 1.5; }
+.gap-statement {
+  max-width: 620px; font-family: var(--font-body);
+  font-size: 0.97rem; color: var(--text-dim); font-style: italic;
+  line-height: 1.7; padding: 1.3rem 1.8rem;
+  border-left: 2px solid var(--accent);
+}
+.gap-statement strong { color: var(--text); font-style: normal; }
+
+/* ── LAYER 5 ── */
+#layer-5 {
+  min-height: 100vh; padding: 6rem 2rem 4rem;
+  display: flex; flex-direction: column;
+  align-items: center; position: relative; overflow: hidden;
+}
+#layer-5::before {
+  content: ''; position: absolute; bottom: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 700px; height: 350px;
+  background: radial-gradient(ellipse, rgba(0,200,150,0.045) 0%, transparent 70%);
+  pointer-events: none;
+}
+.opportunity-intro { text-align: center; max-width: 580px; margin-bottom: 3.5rem; }
+.opportunity-intro h2 { font-size: clamp(1.7rem, 2.8vw, 2.5rem); font-weight: 700; margin-bottom: 0.75rem; }
+.opportunity-intro p { color: var(--text-dim); font-style: italic; font-size: 0.92rem; }
+.impact-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+  gap: 1px; background: var(--border); border: 1px solid var(--border);
+  max-width: 880px; width: 100%; margin-bottom: 2.8rem;
+}
+.impact-cell { background: var(--surface); padding: 1.8rem 1.3rem; text-align: center; }
+.impact-number {
+  font-family: var(--font-mono);
+  font-size: clamp(1.5rem, 2.8vw, 2.1rem);
+  font-weight: 500; color: var(--accent);
+  display: block; margin-bottom: 0.4rem; line-height: 1;
+}
+.impact-unit {
+  font-family: var(--font-mono); font-size: 0.58rem;
+  color: var(--text-muted); letter-spacing: 0.13em;
+  text-transform: uppercase; display: block; margin-bottom: 0.55rem;
+}
+.impact-label { font-size: 0.77rem; color: var(--text-dim); line-height: 1.4; }
+.funding-title {
+  font-family: var(--font-mono); font-size: 0.62rem;
+  letter-spacing: 0.28em; text-transform: uppercase;
+  color: var(--text-muted); margin-bottom: 1.1rem; text-align: center;
+}
+.funding-row {
+  display: flex; gap: 1px; background: var(--border);
+  border: 1px solid var(--border);
+  max-width: 880px; width: 100%; margin-bottom: 3.5rem; flex-wrap: wrap;
+}
+.funding-tile {
+  background: var(--surface); padding: 1.4rem 1.8rem;
+  flex: 1; min-width: 190px; position: relative;
+}
+.funding-tile::before {
+  content: ''; position: absolute;
+  top: 0; left: 0; right: 0; height: 2px;
+}
+.funding-tile.jtf::before { background: var(--accent); }
+.funding-tile.rabo::before { background: var(--accent4); }
+.funding-tile.eu::before { background: var(--accent2); }
+.funding-tile-name {
+  font-family: var(--font-display); font-size: 0.95rem;
+  font-weight: 700; margin-bottom: 0.28rem;
+}
+.funding-tile-status {
+  font-family: var(--font-mono); font-size: 0.58rem;
+  letter-spacing: 0.13em; text-transform: uppercase; margin-bottom: 0.7rem;
+}
+.jtf .funding-tile-status { color: var(--accent); }
+.rabo .funding-tile-status { color: var(--accent4); }
+.eu .funding-tile-status { color: var(--accent2); }
+.funding-tile-text { font-size: 0.76rem; color: var(--text-dim); line-height: 1.5; }
+.beat-1 { max-width: 680px; text-align: center; margin-bottom: 2.8rem; }
+.beat-1 h3 {
+  font-family: var(--font-display);
+  font-size: clamp(1.3rem, 2.3vw, 1.8rem);
+  font-weight: 700; margin-bottom: 0.9rem; line-height: 1.3;
+}
+.beat-1 p { color: var(--text-dim); font-style: italic; font-size: 0.92rem; }
+.beat-2 {
+  max-width: 780px; text-align: center; margin-bottom: 3.5rem;
+  padding: 2.8rem 2rem; border: 1px solid var(--border2); position: relative;
+}
+.beat-2::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+}
+.beat-2::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+}
+.beat-2-statement {
+  font-family: var(--font-display);
+  font-size: clamp(1.05rem, 2.3vw, 1.5rem);
+  font-weight: 400; font-style: italic;
+  line-height: 1.55; color: var(--text); margin-bottom: 1.3rem;
+}
+.beat-2-statement strong {
+  font-weight: 900; font-style: normal; color: var(--accent);
+}
+.beat-2-sub {
+  font-family: var(--font-mono); font-size: 0.72rem;
+  color: var(--text-dim); letter-spacing: 0.04em; line-height: 1.65;
+}
+.doc-footer {
+  border-top: 1px solid var(--border); padding-top: 1.4rem;
+  max-width: 880px; width: 100%;
+  display: flex; justify-content: space-between;
+  align-items: center; flex-wrap: wrap; gap: 0.8rem;
+}
+.footer-author {
+  font-family: var(--font-mono); font-size: 0.62rem;
+  letter-spacing: 0.13em; color: var(--text-muted); text-transform: uppercase;
+}
+.footer-author span { color: var(--text-dim); }
+.footer-source {
+  font-family: var(--font-mono); font-size: 0.58rem;
+  color: var(--text-muted); letter-spacing: 0.06em; text-align: right;
+}
+
+/* ANIMATIONS */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes scrollPulse {
+  0%,100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+@keyframes plasmaShift {
+  from { transform: translate(0,0) scale(1); }
+  to { transform: translate(-8%,8%) scale(1.15); }
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .stats-row { gap: 1.8rem; }
+  .stat-block::after { display: none; }
+  #loop-diagram, #gap-diagram { height: 380px; }
+  .doc-footer { flex-direction: column; align-items: flex-start; }
+  .footer-source { text-align: left; }
+  #nav-dots { display: none; }
+}
+</style>
+</head>
+<body>
+
+<nav id="nav-dots">
+  <div class="nav-dot active" data-target="layer-1"></div>
+  <div class="nav-dot" data-target="layer-2"></div>
+  <div class="nav-dot" data-target="layer-3"></div>
+  <div class="nav-dot" data-target="layer-4"></div>
+  <div class="nav-dot" data-target="layer-5"></div>
+</nav>
+
+<div class="loop-tooltip" id="loop-tooltip">
+  <div class="loop-tooltip-title" id="tt-title"></div>
+  <div class="loop-tooltip-text" id="tt-text"></div>
+  <div class="loop-tooltip-stat" id="tt-stat"></div>
+</div>
+
+<!-- ═══════ LAYER 1: HOOK ═══════ -->
+<section id="layer-1">
+  <div class="hook-eyebrow">IJmond · North Holland · Netherlands</div>
+  <h1 class="hook-question">
+    What if the heaviest industry in the Netherlands became the <em>engine</em> of its own ecological recovery?
+  </h1>
+  <p class="hook-subtext">
+    The mandate exists. The technology exists. The funding exists.<br>
+    The system is not yet closed.
+  </p>
+  <div class="stats-row">
+    <div class="stat-block">
+      <span class="stat-number" id="stat1">0%</span>
+      <span class="stat-label">of Dutch national CO₂ emissions — one site</span>
+    </div>
+    <div class="stat-block">
+      <span class="stat-number" id="stat2">0MT</span>
+      <span class="stat-label">CO₂ reduction committed by 2030</span>
+    </div>
+    <div class="stat-block">
+      <span class="stat-number" id="stat3">€0B</span>
+      <span class="stat-label">public &amp; private investment already committed</span>
+    </div>
+    <div class="stat-block">
+      <span class="stat-number" id="stat4">0MW</span>
+      <span class="stat-label">waste heat generated continuously — uncaptured</span>
+    </div>
+  </div>
+  <div class="hook-frame">
+    The money is committed. The mandate is clear. Three technologies already operating in the same region are pointing at the same problem — from different directions. Nobody has connected them yet.
+  </div>
+  <div class="scroll-hint">
+    <span>Continue</span>
+    <div class="scroll-arrow"></div>
+  </div>
+</section>
+
+<!-- ═══════ LAYER 2: PLAYERS ═══════ -->
+<section id="layer-2">
+  <div class="players-intro">
+    <div class="section-label fade-up">02 — The Players</div>
+    <h2 class="fade-up">Three actors. One region. Shared stakes.</h2>
+    <p class="fade-up">Each is solving part of the problem. None is solving all of it.</p>
+  </div>
+  <div class="players-grid">
+    <div class="player-card tata fade-up">
+      <div class="player-tag">Industrial Anchor</div>
+      <div class="player-name">Tata Steel + Techport</div>
+      <div class="player-sub">IJmuiden, North Holland</div>
+      <div class="player-divider"></div>
+      <div class="player-row">
+        <div class="player-row-label">What they do</div>
+        <div class="player-row-text">Produce 7 million tonnes of steel annually. Operate the Netherlands' most ambitious industrial green transition, brokered through Techport's public-private network of 100+ companies, schools and governments.</div>
+      </div>
+      <div class="player-row">
+        <div class="player-row-label">What they've proven</div>
+        <div class="player-row-text proven">15% CO₂ reduction per tonne since 1990. Top 3 most CO₂-efficient steel plants globally. €300M Roadmap+ environmental programme underway. €4–6.5B committed for full transition.</div>
+      </div>
+      <div class="player-gap">
+        <div class="player-gap-label">What the system still needs</div>
+        <div class="player-gap-text">100MW of continuously generated waste heat — currently vented — available as energy input for everything downstream.</div>
+      </div>
+    </div>
+    <div class="player-card kapitein fade-up">
+      <div class="player-tag">Emissions Technology</div>
+      <div class="player-name">KapiteinLabs</div>
+      <div class="player-sub">Haarlem, North Holland</div>
+      <div class="player-divider"></div>
+      <div class="player-row">
+        <div class="player-row-label">What they do</div>
+        <div class="player-row-text">Deploy pulsed plasma technology that captures and converts harmful emissions and pollutants at their source — without chemical additives, without combustion, without secondary waste streams.</div>
+      </div>
+      <div class="player-row">
+        <div class="player-row-label">What they've proven</div>
+        <div class="player-row-text proven">Efficacy confirmed by Eindhoven University of Technology. Bluereactor eliminates ammonia from agricultural emissions. €1.6M secured in 2024 for final development phase.</div>
+      </div>
+      <div class="player-gap">
+        <div class="player-gap-label">What the system still needs</div>
+        <div class="player-gap-text">An industrial-scale deployment context — and a measurable output channel that routes cleaned emissions into ecological restoration rather than open air.</div>
+      </div>
+    </div>
+    <div class="player-card weather fade-up">
+      <div class="player-tag">Ecological Restoration</div>
+      <div class="player-name">The Weather Makers</div>
+      <div class="player-sub">Netherlands · Global Operations</div>
+      <div class="player-divider"></div>
+      <div class="player-row">
+        <div class="player-row-label">What they do</div>
+        <div class="player-row-text">Nature-based engineering at planetary scale. Restore ecosystems, reshape coastlines, rebuild water cycles in desolate landscapes — from the Sahara to Mozambique to the Polish waterways.</div>
+      </div>
+      <div class="player-row">
+        <div class="player-row-label">What they've proven</div>
+        <div class="player-row-text proven">Active restoration projects across Egypt, Libya, Oman, Morocco, UAE and Poland. Already partnered with AI for climate resilience roadmapping. Proven methodology across six climate zones.</div>
+      </div>
+      <div class="player-gap">
+        <div class="player-gap-label">What the system still needs</div>
+        <div class="player-gap-text">Funding for established research — and a data layer that makes ecological impact legible to industrial and government funders.</div>
+      </div>
+    </div>
+  </div>
+  <div class="connector-row fade-up">
+    <div class="connector-dot"></div>
+    <div class="connector-line-dashed"></div>
+    <div class="connector-label">Partial overlap.<br>No unified system.</div>
+    <div class="connector-line-dashed"></div>
+    <div class="connector-dot"></div>
+  </div>
+</section>
+
+<!-- ═══════ LAYER 3: THE LOOP ═══════ -->
+<section id="layer-3">
+  <div class="loop-intro">
+    <div class="section-label fade-up">03 — The Loop</div>
+    <h2 class="fade-up">What the closed system looks like</h2>
+    <p class="fade-up">Every node already exists. The connections are the question.</p>
+  </div>
+  <div id="loop-diagram" class="fade-up"></div>
+  <div class="loop-legend fade-up" id="loop-legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#ff6b35"></div>Industrial input</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#c8a000"></div>Energy recovery</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#0088ff"></div>Plasma technology</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#00c896"></div>Ecological output</div>
+  </div>
+</section>
+
+<!-- ═══════ LAYER 4: THE GAP ═══════ -->
+<section id="layer-4">
+  <div class="gap-intro">
+    <div class="section-label fade-up">04 — The Gap</div>
+    <h2 class="fade-up">Every complex system has an emerging need</h2>
+    <p class="fade-up">This one is no different. One layer is still reaching to exist.</p>
+  </div>
+  <div id="gap-diagram" class="fade-up"></div>
+  <div class="gap-points">
+    <div class="gap-point">
+      <span class="gap-point-icon">⟳</span>
+      <div class="gap-point-title">Cross-Partner Data Pipelines</div>
+      <div class="gap-point-text">Real-time data flows connecting industrial output, plasma processing, and ecological metrics into a single coherent system — currently disconnected.</div>
+    </div>
+    <div class="gap-point">
+      <span class="gap-point-icon">▦</span>
+      <div class="gap-point-title">Unified ESG &amp; CSRD Reporting</div>
+      <div class="gap-point-text">Impact spanning three organisations and two sectors requires a reporting framework that speaks to regulators, funders, and government simultaneously.</div>
+    </div>
+    <div class="gap-point">
+      <span class="gap-point-icon">◈</span>
+      <div class="gap-point-title">Funding Narrative Construction</div>
+      <div class="gap-point-text">The Just Transition Fund, Rabobank, and EU Horizon each require different evidence formats. A cross-system translator is the missing link.</div>
+    </div>
+    <div class="gap-point">
+      <span class="gap-point-icon">◎</span>
+      <div class="gap-point-title">Ecological Impact Monitoring</div>
+      <div class="gap-point-text">Restoration without measurement is goodwill. Restoration with measurement is fundable, scalable, and replicable across climate zones.</div>
+    </div>
+  </div>
+  <div class="gap-statement fade-up">
+    <strong>Without this layer, the loop cannot report itself.</strong> And what cannot be reported cannot be funded. What cannot be funded cannot scale. The three technologies are ready. The fourth layer is what makes them a system rather than a coincidence.
+  </div>
+</section>
+
+<!-- ═══════ LAYER 5: OPPORTUNITY ═══════ -->
+<section id="layer-5">
+  <div class="opportunity-intro">
+    <div class="section-label fade-up">05 — The Opportunity</div>
+    <h2 class="fade-up">What closing the loop unlocks</h2>
+    <p class="fade-up">Not a projection. A direction — grounded in what already exists.</p>
+  </div>
+  <div class="impact-grid fade-up">
+    <div class="impact-cell">
+      <span class="impact-number count-up" data-target="5" data-suffix="MT">0</span>
+      <span class="impact-unit">CO₂ / year</span>
+      <div class="impact-label">Reduction target already committed — measurable through unified reporting</div>
+    </div>
+    <div class="impact-cell">
+      <span class="impact-number count-up" data-target="100" data-suffix="MW">0</span>
+      <span class="impact-unit">continuous</span>
+      <div class="impact-label">Waste heat recoverable as energy input for plasma and water systems</div>
+    </div>
+    <div class="impact-cell">
+      <span class="impact-number count-up" data-target="6" data-suffix=" zones">0</span>
+      <span class="impact-unit">climate regions</span>
+      <div class="impact-label">Active Weather Makers restoration projects — each a replication candidate</div>
+    </div>
+    <div class="impact-cell">
+      <span class="impact-number count-up" data-target="3" data-suffix=" active">0</span>
+      <span class="impact-unit">funding channels</span>
+      <div class="impact-label">JTF, Rabobank green financing, and EU Horizon — all active in this ecosystem</div>
+    </div>
+  </div>
+
+  <div class="funding-title fade-up">Funding channels — already active in this ecosystem</div>
+  <div class="funding-row fade-up">
+    <div class="funding-tile jtf">
+      <div class="funding-tile-name">Just Transition Fund</div>
+      <div class="funding-tile-status">● Active in IJmond</div>
+      <div class="funding-tile-text">European fund enabling fossil-dependent regions to enter energy transition equitably. First IJmond projects already funded. Techport is the named regional broker.</div>
+    </div>
+    <div class="funding-tile rabo">
+      <div class="funding-tile-name">Rabobank Green Financing</div>
+      <div class="funding-tile-status">● Techport Theme Partner</div>
+      <div class="funding-tile-text">125 years committed to a future-proof society. Named innovation partner of Techport. Active in green financing, masterclasses, and cross-sector knowledge exchange.</div>
+    </div>
+    <div class="funding-tile eu">
+      <div class="funding-tile-name">EU Horizon / LIFE</div>
+      <div class="funding-tile-status">● Cross-border eligible</div>
+      <div class="funding-tile-text">The Weather Makers' international portfolio positions this collaboration as a cross-border ecological restoration initiative eligible for Horizon and LIFE funding instruments.</div>
+    </div>
+  </div>
+
+  <div class="beat-1 fade-up">
+    <h3>The stack is 80% assembled.</h3>
+    <p>Three organisations. One region. A government mandate backed by billions. Proven technology at every node. The architecture of a closed regenerative system is already here — operating in parallel, not yet in concert.</p>
+  </div>
+
+  <div class="beat-2 fade-up">
+    <div class="beat-2-statement">
+      This is not a proposal.<br>
+      <strong>The Regenerative Stack is already happening.</strong><br>
+      It just doesn't know it yet.
+    </div>
+    <div class="beat-2-sub">
+      The components exist. The funding exists. The mandate exists.<br>
+      What remains is the intelligence layer that connects them —<br>
+      and makes the whole system visible, reportable, and fundable.
+    </div>
+  </div>
+
+  <div class="doc-footer fade-up">
+    <div class="footer-author">Compiled by <span>Laszlo Sandor</span> · 2026</div>
+    <div class="footer-source">
+      All data sourced from public record.<br>
+      Tata Steel Annual Reports · KapiteinLabs · The Weather Makers · Techport · Global Energy Monitor
+    </div>
+  </div>
+</section>
+
+<script>
+// ── INTERSECTION OBSERVER ──
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      if (e.target.classList.contains('count-up')) startCount(e.target);
+    }
+  });
+}, { threshold: 0.15 });
+
+document.querySelectorAll('.fade-up, .section-label, .connector-row').forEach(el => observer.observe(el));
+
+// ── LAYER 1 STAT COUNTERS ──
+function countTo(el, target, suffix, decimals, duration) {
+  let start = 0;
+  const steps = 60;
+  const inc = target / steps;
+  const timer = setInterval(() => {
+    start = Math.min(start + inc, target);
+    const val = decimals ? start.toFixed(1) : Math.round(start);
+    el.textContent = val + suffix;
+    if (start >= target) clearInterval(timer);
+  }, duration / steps);
+}
+
+setTimeout(() => {
+  countTo(document.getElementById('stat1'), 8, '%', false, 1600);
+  countTo(document.getElementById('stat2'), 5, 'MT', false, 1600);
+  countTo(document.getElementById('stat4'), 100, 'MW', false, 1600);
+  // Special: range stat
+  let s3 = 0;
+  const t3 = setInterval(() => {
+    s3 = Math.min(s3 + 0.12, 6.5);
+    document.getElementById('stat3').textContent = '€' + s3.toFixed(1) + 'B+';
+    if (s3 >= 6.5) clearInterval(t3);
+  }, 1600 / 54);
+}, 900);
+
+// ── LAYER 5 COUNT UP ──
+function startCount(el) {
+  if (el.dataset.counted) return;
+  el.dataset.counted = true;
+  const target = parseFloat(el.dataset.target);
+  const suffix = el.dataset.suffix || '';
+  let current = 0;
+  const steps = 45;
+  const inc = target / steps;
+  const timer = setInterval(() => {
+    current = Math.min(current + inc, target);
+    el.textContent = Math.round(current) + suffix;
+    if (current >= target) clearInterval(timer);
+  }, 1400 / steps);
+}
+
+document.querySelectorAll('.count-up').forEach(el => observer.observe(el));
+
+// ── NAV DOTS ──
+const dots = document.querySelectorAll('.nav-dot');
+const sectionIds = ['layer-1','layer-2','layer-3','layer-4','layer-5'];
+
+dots.forEach(dot => {
+  dot.addEventListener('click', () => {
+    document.getElementById(dot.dataset.target)?.scrollIntoView({ behavior: 'smooth' });
+  });
+});
+
+const secObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const idx = sectionIds.indexOf(e.target.id);
+      dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+    }
+  });
+}, { threshold: 0.4 });
+
+sectionIds.forEach(id => {
+  const el = document.getElementById(id);
+  if (el) secObs.observe(el);
+});
+
+// ── GAP POINTS STAGGER ──
+const gapObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      document.querySelectorAll('.gap-point').forEach((p, i) => {
+        setTimeout(() => p.classList.add('visible'), i * 140);
+      });
+    }
+  });
+}, { threshold: 0.2 });
+const gapGrid = document.querySelector('.gap-points');
+if (gapGrid) gapObs.observe(gapGrid);
+
+// ── D3 DIAGRAM ──
+function buildDiagram(containerId, showGap) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  const W = container.clientWidth || 680;
+  const H = container.clientHeight || 560;
+  const cx = W / 2, cy = H / 2;
+  const R = Math.min(W, H) * 0.35;
+
+  const nodes = [
+    { id:'heat',    label:'Industrial\nWaste Heat',    sub:'100MW continuous',         color:'#ff6b35', angle:-90,  tip:'Tata Steel IJmuiden generates 100MW of waste heat at ~100°C continuously. Currently vented. Available as a free energy input for the entire downstream system.', stat:'100MW · 8,760 hrs/year' },
+    { id:'stirling',label:'Heat\nRecovery',            sub:'Stirling / Thermoelectric', color:'#c8a000', angle:-30,  tip:'Heat differential engines convert temperature gradients into electricity — no combustion, no emissions. The Sahara\'s extreme day/night differential amplifies output significantly.', stat:'Est. 30–40% conversion efficiency' },
+    { id:'plasma',  label:'Plasma\nPurification',      sub:'KapiteinLabs Bluereactor',  color:'#0088ff', angle:30,   tip:'KapiteinLabs pulsed plasma destroys toxins, ammonia and emissions at source. Confirmed by Eindhoven University of Technology. No chemical additives. No secondary waste.', stat:'€1.6M funded · TU/e verified' },
+    { id:'water',   label:'Clean\nWater Output',       sub:'Purified & redistributed',  color:'#00c896', angle:90,   tip:'Plasma purification of brackish or contaminated water sources produces clean water surplus deployable in water-scarce restoration zones — net positive in arid climates.', stat:'Net positive water balance in arid deployment' },
+    { id:'twm',     label:'Ecosystem\nRestoration',    sub:'The Weather Makers',        color:'#00c896', angle:150,  tip:'The Weather Makers deploy nature-based engineering across 6 climate zones. Active in Egypt, Libya, Oman, Morocco, UAE, Mozambique and Poland. Proven methodology at scale.', stat:'Active on 3 continents · 6 climate zones' },
+    { id:'carbon',  label:'Carbon\nSequestration',     sub:'Measurable feedback',       color:'#c8a000', angle:210,  tip:'Restored ecosystems sequester carbon, rebuild water cycles, and generate quantifiable impact data that feeds directly back into ESG reporting and future funding applications.', stat:'Closes the measurement loop' },
+  ];
+
+  nodes.forEach(n => {
+    const rad = n.angle * Math.PI / 180;
+    n.x = cx + R * Math.cos(rad);
+    n.y = cy + R * Math.sin(rad);
+  });
+
+  const intelligenceNode = {
+    id:'intelligence', label:'Intelligence\nLayer', sub:'The open question',
+    color:'#ffffff', x:cx, y:cy,
+    tip:'Cross-partner data pipelines, unified ESG reporting, funding narrative construction, ecological monitoring. The layer that makes the system visible — and fundable.',
+    stat:'The emerging need'
+  };
+
+  const svg = d3.select(container).append('svg').attr('width', W).attr('height', H);
+  const defs = svg.append('defs');
+
+  // Arrow markers
+  nodes.forEach(n => {
+    defs.append('marker')
+      .attr('id', `arr-${containerId}-${n.id}`)
+      .attr('viewBox','0 0 10 10').attr('refX',8).attr('refY',5)
+      .attr('markerWidth',4).attr('markerHeight',4).attr('orient','auto')
+      .append('path').attr('d','M 0 0 L 10 5 L 0 10 z')
+      .attr('fill', n.color).attr('opacity', 0.65);
+  });
+
+  // Arcs
+  const nr = 24;
+  for (let i = 0; i < nodes.length; i++) {
+    const from = nodes[i];
+    const to = nodes[(i + 1) % nodes.length];
+    const dx = to.x - from.x, dy = to.y - from.y;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    const ux = dx/dist, uy = dy/dist;
+    const x1 = from.x + ux*nr, y1 = from.y + uy*nr;
+    const x2 = to.x - ux*(nr+7), y2 = to.y - uy*(nr+7);
+    const mx = (x1+x2)/2 + (y2-y1)*0.18;
+    const my = (y1+y2)/2 - (x2-x1)*0.18;
+
+    svg.append('path')
+      .attr('d', `M ${x1} ${y1} Q ${mx} ${my} ${x2} ${y2}`)
+      .attr('fill','none').attr('stroke', from.color)
+      .attr('stroke-width', showGap ? 1 : 1.5)
+      .attr('stroke-opacity', 0)
+      .attr('stroke-dasharray', showGap ? '4 5' : 'none')
+      .attr('marker-end', `url(#arr-${containerId}-${from.id})`)
+      .transition().delay(i * 200 + 500).duration(600)
+      .attr('stroke-opacity', showGap ? 0.25 : 0.55);
+  }
+
+  // If gap: dim lines from/to intelligence center
+  if (showGap) {
+    nodes.forEach((n, i) => {
+      const dx = cx - n.x, dy = cy - n.y;
+      const dist = Math.sqrt(dx*dx+dy*dy);
+      const ux = dx/dist, uy = dy/dist;
+      svg.append('line')
+        .attr('x1', n.x + ux*nr).attr('y1', n.y + uy*nr)
+        .attr('x2', cx - ux*nr).attr('y2', cy - uy*nr)
+        .attr('stroke', n.color).attr('stroke-width', 0.8)
+        .attr('stroke-opacity', 0).attr('stroke-dasharray', '3 5')
+        .transition().delay(i*80 + 1200).duration(500)
+        .attr('stroke-opacity', 0.15);
+    });
+  }
+
+  const tooltip = document.getElementById('loop-tooltip');
+  const ttTitle = document.getElementById('tt-title');
+  const ttText = document.getElementById('tt-text');
+  const ttStat = document.getElementById('tt-stat');
+
+  function drawNode(n, delay, isInt) {
+    const g = svg.append('g')
+      .attr('transform', `translate(${n.x},${n.y})`)
+      .style('cursor','pointer')
+      .attr('opacity', 0);
+
+    g.append('circle').attr('r', 28).attr('fill','none')
+      .attr('stroke', n.color).attr('stroke-width', isInt ? 1 : 1.5)
+      .attr('stroke-opacity', isInt ? 0.2 : 0.25)
+      .attr('stroke-dasharray', isInt ? '4 3' : 'none');
+
+    g.append('circle').attr('r', 20).attr('fill', isInt ? 'none' : '#0b1117')
+      .attr('stroke', n.color).attr('stroke-width', isInt ? 1 : 2)
+      .attr('stroke-opacity', isInt ? 0.35 : 0.9)
+      .attr('stroke-dasharray', isInt ? '3 3' : 'none');
+
+    if (!isInt) {
+      g.append('circle').attr('r', 5).attr('fill', n.color).attr('opacity', 0.8);
+    } else {
+      g.append('text').attr('text-anchor','middle').attr('dy','0.4em')
+        .attr('fill', n.color).attr('opacity', 0.45)
+        .attr('font-family','Libre Baskerville, serif').attr('font-size','13px')
+        .text('?');
+      // Pulse ring
+      const pulse = g.append('circle').attr('r', 28).attr('fill','none')
+        .attr('stroke', n.color).attr('stroke-width', 0.8).attr('stroke-opacity', 0.12);
+      (function doPulse() {
+        pulse.transition().duration(1800).attr('stroke-opacity', 0.38)
+          .transition().duration(1800).attr('stroke-opacity', 0.08)
+          .on('end', doPulse);
+      })();
+    }
+
+    // Label positioning
+    const labelLines = n.label.split('\n');
+    const aboveOrBelow = Math.abs(n.y - cy) > 30;
+    const isBelow = n.y > cy + 30;
+    const isRight = n.x > cx + 30;
+    const lx = aboveOrBelow ? 0 : (isRight ? 34 : -34);
+    const ly = aboveOrBelow ? (isBelow ? 34 : -44) : -6;
+    const anchor = aboveOrBelow ? 'middle' : (isRight ? 'start' : 'end');
+
+    const lg = g.append('g').attr('transform', `translate(${lx},${ly})`);
+    labelLines.forEach((line, li) => {
+      lg.append('text').attr('text-anchor', anchor).attr('dy', `${li * 1.2}em`)
+        .attr('fill', isInt ? n.color : '#ddeaf2')
+        .attr('opacity', isInt ? 0.45 : 0.88)
+        .attr('font-family','Playfair Display, serif')
+        .attr('font-size','11px').attr('font-weight','700').text(line);
+    });
+    lg.append('text').attr('text-anchor', anchor)
+      .attr('dy', `${labelLines.length * 1.2 + 0.25}em`)
+      .attr('fill', n.color).attr('opacity', isInt ? 0.35 : 0.58)
+      .attr('font-family','JetBrains Mono, monospace').attr('font-size','8px')
+      .text(n.sub);
+
+    g.transition().delay(delay).duration(500).attr('opacity', 1);
+
+    g.on('mouseenter', function(event) {
+      ttTitle.textContent = n.label.replace('\n',' ');
+      ttText.textContent = n.tip;
+      ttStat.textContent = n.stat;
+      tooltip.style.opacity = 1;
+    }).on('mousemove', function(event) {
+      tooltip.style.left = (event.clientX + 16) + 'px';
+      tooltip.style.top = (event.clientY - 10) + 'px';
+    }).on('mouseleave', () => tooltip.style.opacity = 0);
+  }
+
+  nodes.forEach((n, i) => drawNode(n, i * 170 + 300, false));
+  if (showGap) drawNode(intelligenceNode, 1100, true);
+
+  setTimeout(() => {
+    const leg = document.getElementById('loop-legend');
+    if (leg) leg.classList.add('visible');
+  }, 1800);
+}
+
+// ── BUILD ON SCROLL ──
+let loopBuilt = false, gapBuilt = false;
+const diagObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      if (e.target.id === 'layer-3' && !loopBuilt) {
+        loopBuilt = true;
+        setTimeout(() => buildDiagram('loop-diagram', false), 350);
+      }
+      if (e.target.id === 'layer-4' && !gapBuilt) {
+        gapBuilt = true;
+        setTimeout(() => buildDiagram('gap-diagram', true), 350);
+      }
+    }
+  });
+}, { threshold: 0.25 });
+
+['layer-3','layer-4'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) diagObs.observe(el);
+});
+</script>
+</body>
+</html>
