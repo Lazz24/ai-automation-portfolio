@@ -1,5 +1,0 @@
-fetch('https://hook.eu1.make.com/j37skbgi44l6hjpoh7rldnghqbgrtwoh', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ pain_input: 'I manually copy sales data every Monday' })
-}).then(r => r.text()).then(console.log)
