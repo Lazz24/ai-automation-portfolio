@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Automation ROI Calculator — Magic Hat Consulting</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #AE1C28;
+    --blue: #21468B;
+    --orange: #FF6600;
+    --white: #FFFFFF;
+    --ink: #1A1A2E;
+    --ink-light: #4A4A6A;
+    --surface: #F7F7FB;
+    --border: #E2E2EE;
+    --card: #FFFFFF;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--surface);
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ── HEADER ── */
+  header {
+    width: 100%;
+    background: var(--blue);
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    right: -40px; top: -40px;
+    width: 180px; height: 180px;
+    border-radius: 50%;
+    background: var(--orange);
+    opacity: 0.12;
+  }
+  .hat-icon {
+    font-size: 28px;
+    line-height: 1;
+  }
+  .brand {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+  .brand-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--white);
+    letter-spacing: 0.02em;
+  }
+  .brand-sub {
+    font-size: 11px;
+    font-weight: 400;
+    color: rgba(255,255,255,0.65);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    width: 100%;
+    max-width: 680px;
+    padding: 56px 24px 0;
+    text-align: center;
+  }
+  .hero-eyebrow {
+    display: inline-block;
+    background: var(--red);
+    color: var(--white);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 2px;
+    margin-bottom: 20px;
+  }
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(32px, 6vw, 52px);
+    font-weight: 900;
+    line-height: 1.1;
+    color: var(--ink);
+    margin-bottom: 16px;
+  }
+  .hero h1 span {
+    color: var(--orange);
+  }
+  .hero p {
+    font-size: 16px;
+    font-weight: 300;
+    color: var(--ink-light);
+    line-height: 1.7;
+    max-width: 480px;
+    margin: 0 auto 40px;
+  }
+
+  /* ── CARD ── */
+  .card {
+    width: 100%;
+    max-width: 640px;
+    margin: 0 24px 48px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 40px 40px 36px;
+    box-shadow: 0 4px 32px rgba(33, 70, 139, 0.07);
+  }
+
+  /* ── FORM ── */
+  .field {
+    margin-bottom: 28px;
+  }
+  .field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .field label span {
+    font-weight: 300;
+    text-transform: none;
+    color: var(--ink-light);
+    letter-spacing: 0;
+    font-size: 12px;
+  }
+
+  input[type="text"],
+  input[type="number"],
+  select {
+    width: 100%;
+    padding: 14px 18px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    color: var(--ink);
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+  input[type="text"]:focus,
+  input[type="number"]:focus,
+  select:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(33,70,139,0.10);
+  }
+
+  .row-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+  }
+  @media (max-width: 480px) {
+    .row-2 { grid-template-columns: 1fr; }
+    .card { padding: 28px 20px 24px; }
+  }
+
+  .input-prefix {
+    position: relative;
+  }
+  .input-prefix span {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 16px;
+    color: var(--ink-light);
+    pointer-events: none;
+    font-weight: 500;
+  }
+  .input-prefix input {
+    padding-left: 32px;
+  }
+
+  /* SELECT WRAPPER */
+  .select-wrap {
+    position: relative;
+  }
+  .select-wrap::after {
+    content: '▾';
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--ink-light);
+    pointer-events: none;
+    font-size: 13px;
+  }
+
+  /* ── BUTTON ── */
+  .cta-btn {
+    width: 100%;
+    margin-top: 8px;
+    padding: 18px;
+    background: var(--orange);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 17px;
+    font-weight: 600;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    letter-spacing: 0.01em;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    box-shadow: 0 4px 20px rgba(255,102,0,0.25);
+    position: relative;
+    overflow: hidden;
+  }
+  .cta-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.08), transparent);
+  }
+  .cta-btn:hover {
+    background: #e05500;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 28px rgba(255,102,0,0.35);
+  }
+  .cta-btn:active {
+    transform: translateY(0);
+  }
+  .cta-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* ── DIVIDER ── */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 32px 0 28px;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+  .divider.visible { opacity: 1; }
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .divider span {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+  }
+
+  /* ── RESULTS ── */
+  #results {
+    display: none;
+    flex-direction: column;
+    gap: 0;
+    animation: slideIn 0.45s cubic-bezier(0.16,1,0.3,1) forwards;
+  }
+  #results.visible { display: flex; }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .task-label {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 20px;
+    line-height: 1.3;
+  }
+  .task-label em {
+    color: var(--blue);
+    font-style: normal;
+  }
+
+  .metrics {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  @media (max-width: 480px) {
+    .metrics { grid-template-columns: 1fr; }
+  }
+
+  .metric {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    position: relative;
+  }
+  .metric.accent {
+    background: var(--blue);
+    border-color: var(--blue);
+  }
+  .metric.accent .metric-label { color: rgba(255,255,255,0.65); }
+  .metric.accent .metric-value { color: var(--white); }
+
+  .metric-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-light);
+    margin-bottom: 6px;
+  }
+  .metric-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.1;
+  }
+  .metric-sub {
+    font-size: 12px;
+    color: var(--ink-light);
+    margin-top: 4px;
+    font-weight: 300;
+  }
+  .metric.accent .metric-sub { color: rgba(255,255,255,0.55); }
+
+  /* VERDICT */
+  .verdict {
+    background: linear-gradient(135deg, var(--red) 0%, #8B1520 100%);
+    border-radius: 12px;
+    padding: 24px 26px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .verdict::before {
+    content: '🎩';
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 48px;
+    opacity: 0.15;
+  }
+  .verdict p {
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--white);
+    font-weight: 400;
+    max-width: 90%;
+  }
+  .verdict strong {
+    font-weight: 700;
+  }
+
+  /* CTA STRIP */
+  .cta-strip {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .cta-strip p {
+    font-size: 14px;
+    color: var(--ink-light);
+    line-height: 1.5;
+    font-weight: 400;
+  }
+  .cta-strip strong {
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .cta-link {
+    display: inline-block;
+    background: var(--blue);
+    color: var(--white);
+    font-size: 14px;
+    font-weight: 600;
+    padding: 10px 20px;
+    border-radius: 6px;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+  .cta-link:hover { background: #1a3870; }
+
+  /* RESET */
+  .reset-btn {
+    background: none;
+    border: none;
+    color: var(--ink-light);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 10px 0;
+    text-decoration: underline;
+    margin-top: 8px;
+    display: none;
+  }
+  .reset-btn.visible { display: inline-block; }
+
+  /* FOOTER */
+  footer {
+    width: 100%;
+    text-align: center;
+    padding: 20px 24px 32px;
+    font-size: 12px;
+    color: var(--ink-light);
+  }
+  footer a {
+    color: var(--blue);
+    text-decoration: none;
+    font-weight: 500;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hat-icon">🎩</div>
+  <div class="brand">
+    <div class="brand-name">Magic Hat Consulting</div>
+    <div class="brand-sub">AI Automation · CSRD · ESG</div>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="hero-eyebrow">Free Tool</div>
+  <h1>What is your manual work<br><span>actually costing you?</span></h1>
+  <p>Enter one repetitive task. We calculate the annual cost — and how fast a one-button automation pays it back.</p>
+</div>
+
+<div class="card">
+  <!-- FORM -->
+  <div id="form-section">
+    <div class="field">
+      <label>The task <span>— be specific, e.g. "weekly compliance report"</span></label>
+      <input type="text" id="task-name" placeholder="e.g. Collecting supplier ESG data" maxlength="80">
+    </div>
+
+    <div class="row-2">
+      <div class="field">
+        <label>Hours per week</label>
+        <input type="number" id="hours" placeholder="e.g. 4" min="0.5" max="80" step="0.5">
+      </div>
+      <div class="field">
+        <label>People doing it</label>
+        <input type="number" id="people" placeholder="e.g. 2" min="1" max="50" step="1">
+      </div>
+    </div>
+
+    <div class="row-2">
+      <div class="field">
+        <label>Hourly cost (EUR) <span>— fully loaded</span></label>
+        <div class="input-prefix">
+          <span>€</span>
+          <input type="number" id="rate" value="45" min="10" max="500" step="5">
+        </div>
+      </div>
+      <div class="field">
+        <label>Current automation level</label>
+        <div class="select-wrap">
+          <select id="automation-level">
+            <option value="0">None — fully manual</option>
+            <option value="25">Partial — some tools help</option>
+            <option value="60">Mostly automated</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <button class="cta-btn" id="calc-btn" onclick="calculate()">Calculate My Cost →</button>
+  </div>
+
+  <!-- DIVIDER -->
+  <div class="divider" id="divider"><span>Your Results</span></div>
+
+  <!-- RESULTS -->
+  <div id="results">
+    <div class="task-label" id="result-title"></div>
+
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-label">Annual Cost Today</div>
+        <div class="metric-value" id="r-annual-cost"></div>
+        <div class="metric-sub" id="r-annual-sub"></div>
+      </div>
+      <div class="metric accent">
+        <div class="metric-label">Annual Savings After Automation</div>
+        <div class="metric-value" id="r-savings"></div>
+        <div class="metric-sub" id="r-savings-sub"></div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Hours Freed Per Year</div>
+        <div class="metric-value" id="r-hours"></div>
+        <div class="metric-sub" id="r-hours-sub"></div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Payback Period</div>
+        <div class="metric-value" id="r-payback"></div>
+        <div class="metric-sub" id="r-payback-sub"></div>
+      </div>
+    </div>
+
+    <div class="verdict">
+      <p id="r-verdict"></p>
+    </div>
+
+    <div class="cta-strip">
+      <p><strong>Want to see exactly how this gets automated?</strong><br>I build one-button solutions for Dutch SMEs. Let's talk.</p>
+      <a class="cta-link" href="https://www.linkedin.com/in/laszlo-szabo-magichat" target="_blank">Book a free call →</a>
+    </div>
+
+    <button class="reset-btn visible" id="reset-btn" onclick="reset()">← Calculate another task</button>
+  </div>
+</div>
+
+<footer>
+  Built by <a href="https://github.com/Lazz24/ai-automation-portfolio" target="_blank">Magic Hat Consulting</a> · Cluj-Napoca → Amsterdam
+</footer>
+
+<script>
+  function fmt(n) {
+    return new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(n);
+  }
+
+  function calculate() {
+    const taskName   = document.getElementById('task-name').value.trim() || 'This task';
+    const hours      = parseFloat(document.getElementById('hours').value);
+    const people     = parseInt(document.getElementById('people').value);
+    const rate       = parseFloat(document.getElementById('rate').value);
+    const autoLevel  = parseInt(document.getElementById('automation-level').value);
+
+    if (!hours || !people || !rate) {
+      alert('Please fill in hours, people, and hourly cost.');
+      return;
+    }
+
+    // Core calc
+    const weeksPerYear    = 48; // realistic working weeks
+    const hoursPerYear    = hours * people * weeksPerYear;
+    const annualCost      = hoursPerYear * rate;
+    const remainingCost   = annualCost * (autoLevel / 100);
+    const addressableCost = annualCost - remainingCost;
+
+    // Automation saves 70–85% of addressable cost
+    const savingsPct      = 0.78;
+    const savings         = addressableCost * savingsPct;
+    const hoursFreed      = hoursPerYear * ((100 - autoLevel) / 100) * savingsPct;
+
+    // Project cost: mid of 750–1200
+    const projectCost     = 975;
+    const paybackWeeks    = savings > 0 ? Math.ceil((projectCost / savings) * 52) : null;
+
+    // Populate
+    document.getElementById('result-title').innerHTML =
+      `<em>${taskName}</em> — here's the number.`;
+
+    document.getElementById('r-annual-cost').textContent  = fmt(annualCost);
+    document.getElementById('r-annual-sub').textContent   = `${Math.round(hoursPerYear)} hours × ${people} person${people > 1 ? 's' : ''} per year`;
+
+    document.getElementById('r-savings').textContent      = fmt(savings);
+    document.getElementById('r-savings-sub').textContent  = `${Math.round(savingsPct * 100)}% of your addressable workload`;
+
+    document.getElementById('r-hours').textContent        = `${Math.round(hoursFreed)}h`;
+    document.getElementById('r-hours-sub').textContent    = `≈ ${Math.round(hoursFreed / 8)} working days returned`;
+
+    if (paybackWeeks !== null && paybackWeeks <= 52) {
+      document.getElementById('r-payback').textContent     = `${paybackWeeks}w`;
+      document.getElementById('r-payback-sub').textContent = `A typical project costs ${fmt(projectCost)}`;
+    } else if (paybackWeeks !== null) {
+      document.getElementById('r-payback').textContent     = `~1yr`;
+      document.getElementById('r-payback-sub').textContent = `A typical project costs ${fmt(projectCost)}`;
+    } else {
+      document.getElementById('r-payback').textContent     = `—`;
+      document.getElementById('r-payback-sub').textContent = `Already well automated`;
+    }
+
+    // Verdict
+    let verdict = '';
+    if (autoLevel === 0) {
+      verdict = `<strong>${taskName}</strong> is costing you <strong>${fmt(annualCost)} per year</strong> — entirely in human time. A one-button automation project at <strong>${fmt(projectCost)}</strong> pays for itself in <strong>${paybackWeeks} weeks</strong> and keeps paying you back every year after.`;
+    } else if (autoLevel === 25) {
+      verdict = `You've made a start, but <strong>${taskName}</strong> still costs you <strong>${fmt(addressableCost)} per year</strong> in manual effort. Closing that gap with full automation returns <strong>${fmt(savings)}</strong> annually — with a payback of <strong>${paybackWeeks} weeks</strong>.`;
+    } else {
+      verdict = `Most of <strong>${taskName}</strong> is already automated — great. The remaining <strong>${fmt(addressableCost)}</strong> in manual overhead is still worth addressing if it involves any human decision loop.`;
+    }
+    document.getElementById('r-verdict').innerHTML = verdict;
+
+    // Show results
+    document.getElementById('divider').classList.add('visible');
+    const results = document.getElementById('results');
+    results.classList.add('visible');
+    results.style.display = 'flex';
+
+    // Smooth scroll
+    setTimeout(() => results.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+
+    document.getElementById('calc-btn').disabled = true;
+  }
+
+  function reset() {
+    document.getElementById('task-name').value = '';
+    document.getElementById('hours').value     = '';
+    document.getElementById('people').value    = '';
+    document.getElementById('rate').value      = '45';
+    document.getElementById('automation-level').value = '0';
+
+    document.getElementById('divider').classList.remove('visible');
+    const results = document.getElementById('results');
+    results.classList.remove('visible');
+    results.style.display = 'none';
+
+    document.getElementById('calc-btn').disabled = false;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>
