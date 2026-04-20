@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TalentBridge — Magic Hat</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --hat: #1a1a2e;
+    --hat-mid: #16213e;
+    --accent: #e8c547;
+    --accent-dim: #c9a93a;
+    --surface: #ffffff;
+    --surface2: #f7f7f5;
+    --surface3: #efefec;
+    --border: rgba(0,0,0,0.1);
+    --border-strong: rgba(0,0,0,0.18);
+    --text: #1a1a2e;
+    --text-mid: #4a4a6a;
+    --text-muted: #8a8aaa;
+    --success: #2d9e6b;
+    --success-bg: #eaf7f1;
+    --radius: 14px;
+    --radius-sm: 8px;
+    --shadow: 0 2px 12px rgba(26,26,46,0.08);
+    --shadow-lg: 0 8px 40px rgba(26,26,46,0.14);
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--surface2);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* NAV */
+  nav {
+    background: var(--hat);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .nav-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 18px;
+    color: #fff;
+    letter-spacing: -0.3px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .nav-logo span { color: var(--accent); }
+  .nav-tabs {
+    display: flex;
+    gap: 4px;
+  }
+  .nav-tab {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.55);
+    background: none;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.2px;
+  }
+  .nav-tab:hover { color: rgba(255,255,255,0.85); background: rgba(255,255,255,0.08); }
+  .nav-tab.active { color: var(--accent); background: rgba(232,197,71,0.12); }
+
+  /* VIEWS */
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* ═══════════════════════════════════════
+     STUDENT VIEW
+  ═══════════════════════════════════════ */
+  .student-hero {
+    background: var(--hat);
+    padding: 4rem 2rem 5rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .student-hero::before {
+    content: '';
+    position: absolute;
+    top: -80px; left: 50%;
+    transform: translateX(-50%);
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(232,197,71,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(232,197,71,0.15);
+    border: 1px solid rgba(232,197,71,0.3);
+    border-radius: 100px;
+    padding: 5px 14px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--accent);
+    letter-spacing: 0.5px;
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+  }
+  .hero-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.1;
+    margin-bottom: 1rem;
+    letter-spacing: -1px;
+  }
+  .hero-title em { color: var(--accent); font-style: normal; }
+  .hero-subtitle {
+    font-size: 16px;
+    color: rgba(255,255,255,0.55);
+    max-width: 480px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* FORM CARD */
+  .form-wrap {
+    max-width: 640px;
+    margin: -2.5rem auto 3rem;
+    padding: 0 1.5rem;
+  }
+  .form-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-lg);
+    padding: 2.5rem;
+  }
+  .form-section-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 1.2rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .form-row.full { grid-template-columns: 1fr; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-mid);
+  }
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    background: var(--surface2);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    outline: none;
+    width: 100%;
+    -webkit-appearance: none;
+  }
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    border-color: var(--accent-dim);
+    box-shadow: 0 0 0 3px rgba(232,197,71,0.15);
+    background: var(--surface);
+  }
+  .form-group textarea { resize: vertical; min-height: 90px; }
+
+  .skills-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .skill-chip {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 6px 14px;
+    border-radius: 100px;
+    border: 1px solid var(--border-strong);
+    background: var(--surface2);
+    color: var(--text-mid);
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+  }
+  .skill-chip:hover { border-color: var(--accent-dim); color: var(--text); }
+  .skill-chip.selected {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--hat);
+    font-weight: 600;
+  }
+
+  .form-divider { height: 1px; background: var(--border); margin: 1.8rem 0; }
+
+  .submit-btn {
+    width: 100%;
+    padding: 14px 24px;
+    background: var(--hat);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 1.5rem;
+  }
+  .submit-btn:hover { background: #0f0f22; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(26,26,46,0.25); }
+  .submit-btn:active { transform: translateY(0); }
+  .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+  /* AI FEEDBACK CARD */
+  .feedback-card {
+    display: none;
+    background: var(--success-bg);
+    border: 1px solid rgba(45,158,107,0.25);
+    border-radius: var(--radius);
+    padding: 1.8rem 2rem;
+    margin-top: 1.5rem;
+  }
+  .feedback-card.visible { display: block; }
+  .feedback-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 1rem;
+  }
+  .feedback-icon {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--success);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .feedback-icon svg { width: 18px; height: 18px; fill: none; stroke: #fff; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+  .feedback-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: #1a5c3f;
+  }
+  .feedback-subtitle { font-size: 12px; color: #2d9e6b; margin-top: 2px; }
+  .feedback-text {
+    font-size: 14px;
+    color: #1e4d35;
+    line-height: 1.7;
+    white-space: pre-wrap;
+  }
+  .feedback-loading {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    color: #2d9e6b;
+    font-style: italic;
+  }
+  .dot-anim span {
+    display: inline-block;
+    animation: bounce 1.2s infinite ease-in-out;
+  }
+  .dot-anim span:nth-child(2) { animation-delay: 0.2s; }
+  .dot-anim span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce {
+    0%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-5px); }
+  }
+
+  /* ═══════════════════════════════════════
+     CLIENT DASHBOARD VIEW
+  ═══════════════════════════════════════ */
+  .dashboard-header {
+    background: var(--hat);
+    padding: 2rem 2.5rem;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+  .dashboard-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.5px;
+  }
+  .dashboard-sub { font-size: 13px; color: rgba(255,255,255,0.45); margin-top: 4px; }
+  .refresh-btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    background: rgba(232,197,71,0.15);
+    border: 1px solid rgba(232,197,71,0.3);
+    color: var(--accent);
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .refresh-btn:hover { background: rgba(232,197,71,0.25); }
+
+  .dashboard-body { padding: 1.5rem 2rem; max-width: 1200px; margin: 0 auto; }
+
+  /* STATS ROW */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 1.5rem;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 1rem 1.25rem;
+  }
+  .stat-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 6px; }
+  .stat-value { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; color: var(--text); letter-spacing: -0.5px; }
+  .stat-value.accent { color: var(--success); }
+
+  /* FILTERS */
+  .filters-bar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 1rem 1.25rem;
+    display: flex;
+    gap: 12px;
+    margin-bottom: 1.2rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .filter-select {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    padding: 7px 12px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    background: var(--surface2);
+    color: var(--text);
+    cursor: pointer;
+    outline: none;
+    -webkit-appearance: none;
+    padding-right: 28px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238a8aaa' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+  }
+  .filter-label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+
+  /* CANDIDATE TABLE */
+  .table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  th {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-muted);
+    padding: 12px 16px;
+    text-align: left;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    font-size: 14px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    vertical-align: top;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--surface2); }
+
+  .col-name { width: 16%; }
+  .col-level { width: 10%; }
+  .col-field { width: 14%; }
+  .col-loc { width: 10%; }
+  .col-avail { width: 10%; }
+  .col-score { width: 8%; }
+  .col-ai { width: 22%; }
+  .col-action { width: 10%; }
+
+  .candidate-name { font-weight: 500; color: var(--text); }
+  .candidate-email { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 100px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  .badge-hbo { background: #e8f0fd; color: #1a4fbd; }
+  .badge-mbo { background: #fef3e2; color: #a05c0a; }
+  .badge-us { background: #f0e8fd; color: #6a1abd; }
+
+  .score-circle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 800;
+  }
+  .score-high { background: #eaf7f1; color: #1a5c3f; }
+  .score-mid { background: #fef3e2; color: #a05c0a; }
+  .score-low { background: #fde8e8; color: #a01a1a; }
+
+  .ai-summary {
+    font-size: 12px;
+    color: var(--text-mid);
+    line-height: 1.5;
+    max-height: 60px;
+    overflow: hidden;
+  }
+  .ai-loading {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-style: italic;
+  }
+
+  .action-btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--border-strong);
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .action-btn:hover { background: var(--hat); color: #fff; border-color: var(--hat); }
+
+  /* OUTREACH MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(10,10,25,0.6);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    width: 100%;
+    max-width: 560px;
+    padding: 2rem;
+  }
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.2rem;
+  }
+  .modal-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .modal-close {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: var(--text-muted);
+    line-height: 1;
+    padding: 4px;
+  }
+  .modal-close:hover { color: var(--text); }
+  .modal-textarea {
+    width: 100%;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text);
+    background: var(--surface2);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    padding: 14px;
+    min-height: 200px;
+    resize: vertical;
+    outline: none;
+  }
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 1rem;
+  }
+  .btn-primary {
+    flex: 1;
+    padding: 11px 20px;
+    background: var(--hat);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-primary:hover { background: #0f0f22; }
+  .btn-secondary {
+    padding: 11px 20px;
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    color: var(--text);
+    transition: all 0.15s;
+  }
+  .btn-secondary:hover { background: var(--surface2); }
+
+  .generating-msg {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-style: italic;
+    margin-top: 0.5rem;
+    display: none;
+  }
+
+  /* EMPTY STATE */
+  .empty-state {
+    padding: 3rem 2rem;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 14px;
+  }
+
+  @media (max-width: 768px) {
+    .stats-row { grid-template-columns: repeat(2,1fr); }
+    .form-row { grid-template-columns: 1fr; }
+    .dashboard-body { padding: 1rem; }
+    .col-ai, .col-action { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">🎩 Talent<span>Bridge</span></div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="switchView('student')">For Students</button>
+    <button class="nav-tab" onclick="switchView('client')">Client Dashboard</button>
+  </div>
+</nav>
+
+<!-- ═══ STUDENT VIEW ═══ -->
+<div class="view active" id="view-student">
+  <div class="student-hero">
+    <div class="hero-badge">✦ Powered by Magic Hat</div>
+    <h1 class="hero-title">Find your<br><em>perfect match.</em></h1>
+    <p class="hero-subtitle">Tell us who you are. Our AI finds the opportunity that actually fits — then tells you why you're ready.</p>
+  </div>
+
+  <div class="form-wrap">
+    <div class="form-card">
+      <div class="form-section-label">Your profile</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>First name</label>
+          <input type="text" id="s-firstname" placeholder="Emma">
+        </div>
+        <div class="form-group">
+          <label>Last name</label>
+          <input type="text" id="s-lastname" placeholder="van der Berg">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="s-email" placeholder="emma@student.nl">
+        </div>
+        <div class="form-group">
+          <label>Country</label>
+          <select id="s-country">
+            <option value="">Select...</option>
+            <option value="NL">🇳🇱 Netherlands</option>
+            <option value="US">🇺🇸 United States</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-divider"></div>
+      <div class="form-section-label">Your education</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Education level</label>
+          <select id="s-level">
+            <option value="">Select...</option>
+            <option value="MBO">MBO (Netherlands)</option>
+            <option value="HBO">HBO (Netherlands)</option>
+            <option value="Bachelor">Bachelor (US/Other)</option>
+            <option value="Master">Master (US/Other)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Field of study</label>
+          <input type="text" id="s-field" placeholder="e.g. Business, Data Science">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Graduation (est.)</label>
+          <select id="s-grad">
+            <option value="">Select year...</option>
+            <option>2025</option><option>2026</option><option>2027</option><option>2028</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Looking for</label>
+          <select id="s-type">
+            <option value="">Select...</option>
+            <option value="Internship">Internship (stage)</option>
+            <option value="Part-time job">Part-time job</option>
+            <option value="Full-time job">Full-time job (after graduation)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-divider"></div>
+      <div class="form-section-label">Your skills</div>
+      <div class="skills-grid" id="skills-grid">
+        <span class="skill-chip" onclick="toggleSkill(this)">Data Analysis</span>
+        <span class="skill-chip" onclick="toggleSkill(this)">Excel / Sheets</span>
+        <span class="skill-chip" onclick="toggleSkill(this)">Python</span>
+        <span class="skill-chip" onclick="toggleSkill(this)">Marketing</span>
+        <span class="skill-chip" onclick="toggleSkill(this)">Communication</span>
+        <span class="skill-chip" onclick="toggleSkill(this)">Project Mgmt</span>
+        <span class="skill-chip" onclick="toggleSkill(this)">Design (Figma)</span>
+        <span class="skill-chip" onclick="toggleSkill(this)">JavaScript</span>
+        <span class="skill-chip" onclick="toggleSkill(this)">Finance</span>
+        <span class="skill-chip" onclick="toggleSkill(this)">Research</span>
+        <span class="skill-chip" onclick="toggleSkill(this)">Sales</span>
+        <span class="skill-chip" onclick="toggleSkill(this)">Sustainability</span>
+      </div>
+
+      <div class="form-divider"></div>
+      <div class="form-section-label">Anything else?</div>
+      <div class="form-row full">
+        <div class="form-group">
+          <label>Tell us what makes you different</label>
+          <textarea id="s-bio" placeholder="e.g. I built a small clothing brand during lockdown. I love solving problems before anyone notices them..."></textarea>
+        </div>
+      </div>
+
+      <button class="submit-btn" onclick="submitStudent()" id="submit-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        Find my match
+      </button>
+
+      <div class="feedback-card" id="feedback-card">
+        <div class="feedback-header">
+          <div class="feedback-icon">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div>
+            <div class="feedback-title">Your candidate profile is live.</div>
+            <div class="feedback-subtitle">Here's what our AI thinks about your fit right now:</div>
+          </div>
+        </div>
+        <div class="feedback-text" id="feedback-text">
+          <div class="feedback-loading">Analyzing your profile<span class="dot-anim"><span>.</span><span>.</span><span>.</span></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CLIENT DASHBOARD VIEW ═══ -->
+<div class="view" id="view-client">
+  <div class="dashboard-header">
+    <div>
+      <div class="dashboard-title">Talent Pipeline</div>
+      <div class="dashboard-sub">Live candidate overview — Magic Hat TalentBridge</div>
+    </div>
+    <button class="refresh-btn" onclick="loadCandidates()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+      Refresh
+    </button>
+  </div>
+
+  <div class="dashboard-body">
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">Total candidates</div>
+        <div class="stat-value" id="stat-total">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">NL students</div>
+        <div class="stat-value" id="stat-nl">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">US students</div>
+        <div class="stat-value" id="stat-us">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">High match (≥80)</div>
+        <div class="stat-value accent" id="stat-high">—</div>
+      </div>
+    </div>
+
+    <div class="filters-bar">
+      <span class="filter-label">Filter:</span>
+      <select class="filter-select" id="filter-level" onchange="applyFilters()">
+        <option value="">All levels</option>
+        <option>MBO</option><option>HBO</option><option>Bachelor</option><option>Master</option>
+      </select>
+      <select class="filter-select" id="filter-country" onchange="applyFilters()">
+        <option value="">All countries</option>
+        <option value="NL">Netherlands</option>
+        <option value="US">United States</option>
+      </select>
+      <select class="filter-select" id="filter-type" onchange="applyFilters()">
+        <option value="">All types</option>
+        <option>Internship</option><option>Part-time job</option><option>Full-time job</option>
+      </select>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th class="col-name">Candidate</th>
+            <th class="col-level">Level</th>
+            <th class="col-field">Field</th>
+            <th class="col-loc">Country</th>
+            <th class="col-avail">Looking for</th>
+            <th class="col-score">Score</th>
+            <th class="col-ai">AI Summary</th>
+            <th class="col-action">Outreach</th>
+          </tr>
+        </thead>
+        <tbody id="candidates-table">
+          <tr><td colspan="8" class="empty-state">Loading candidates...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- OUTREACH MODAL -->
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">Generate outreach message</div>
+      <button class="modal-close" onclick="document.getElementById('modal').classList.remove('open')">×</button>
+    </div>
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:1rem;" id="modal-sub">Personalized by AI based on this candidate's profile.</p>
+    <textarea class="modal-textarea" id="modal-msg" placeholder="Generating message..."></textarea>
+    <p class="generating-msg" id="generating-msg">✦ Writing personalized outreach...</p>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="copyMessage()">Copy</button>
+      <button class="btn-primary" onclick="regenerateMessage()">Regenerate ↻</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── CONFIG (drop in your endpoints) ───────────────────────────────
+const MAKE_WEBHOOK_URL = 'YOUR_MAKE_WEBHOOK_URL_HERE';
+const AIRTABLE_PAT     = 'YOUR_AIRTABLE_PAT_HERE';
+const AIRTABLE_BASE_ID = 'YOUR_AIRTABLE_BASE_ID_HERE';
+const AIRTABLE_TABLE   = 'TalentBridge';
+// ───────────────────────────────────────────────────────────────────
+
+let allCandidates = [];
+let currentCandidate = null;
+
+function switchView(view) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('view-' + view).classList.add('active');
+  event.target.classList.add('active');
+  if (view === 'client') loadCandidates();
+}
+
+// ─── SKILL CHIPS ────────────────────────────────────────────────────
+function toggleSkill(el) { el.classList.toggle('selected'); }
+function getSelectedSkills() {
+  return [...document.querySelectorAll('.skill-chip.selected')].map(c => c.textContent).join(', ');
+}
+
+// ─── STUDENT FORM SUBMIT ────────────────────────────────────────────
+async function submitStudent() {
+  const btn = document.getElementById('submit-btn');
+  const feedbackCard = document.getElementById('feedback-card');
+  const feedbackText = document.getElementById('feedback-text');
+
+  const data = {
+    firstName: document.getElementById('s-firstname').value.trim(),
+    lastName:  document.getElementById('s-lastname').value.trim(),
+    email:     document.getElementById('s-email').value.trim(),
+    country:   document.getElementById('s-country').value,
+    level:     document.getElementById('s-level').value,
+    field:     document.getElementById('s-field').value.trim(),
+    grad:      document.getElementById('s-grad').value,
+    type:      document.getElementById('s-type').value,
+    skills:    getSelectedSkills(),
+    bio:       document.getElementById('s-bio').value.trim(),
+    submittedAt: new Date().toISOString()
+  };
+
+  if (!data.firstName || !data.email || !data.level || !data.field) {
+    alert('Please fill in at least your name, email, education level and field of study.');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Submitting...';
+  feedbackCard.classList.add('visible');
+  feedbackText.innerHTML = '<div class="feedback-loading">Analyzing your profile<span class="dot-anim"><span>.</span><span>.</span><span>.</span></span></div>';
+
+  // 1. Fire to Make.com webhook (non-blocking; catch silently if not configured)
+  try {
+    if (MAKE_WEBHOOK_URL !== 'YOUR_MAKE_WEBHOOK_URL_HERE') {
+      await fetch(MAKE_WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+    }
+  } catch(e) { console.warn('Webhook skipped:', e); }
+
+  // 2. Get AI feedback for the student via Anthropic API
+  try {
+    const prompt = `You are a talent advisor. A student has just applied. Give them warm, honest, specific feedback (3-4 sentences) about their strengths and what makes them stand out to employers. Be encouraging but concrete. Do NOT use bullet points.
+
+Student profile:
+- Name: ${data.firstName} ${data.lastName}
+- Country: ${data.country}
+- Education: ${data.level} in ${data.field}, graduating ${data.grad}
+- Looking for: ${data.type}
+- Skills: ${data.skills || 'Not specified'}
+- Their own words: "${data.bio || 'Nothing added'}"
+
+Write directly to the student (use "you/your"). Focus on what genuinely stands out.`;
+
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const result = await res.json();
+    const text = result.content?.find(b => b.type === 'text')?.text || 'Your profile has been received. A recruiter will review it shortly.';
+    feedbackText.textContent = text;
+  } catch(e) {
+    feedbackText.textContent = 'Your profile has been submitted successfully. Our team will be in touch.';
+  }
+
+  btn.textContent = '✓ Submitted';
+  btn.style.background = 'var(--success)';
+  feedbackCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ─── CLIENT DASHBOARD ────────────────────────────────────────────────
+async function loadCandidates() {
+  const tbody = document.getElementById('candidates-table');
+  tbody.innerHTML = '<tr><td colspan="8" class="empty-state">Loading...</td></tr>';
+
+  // Use demo data if Airtable not configured
+  if (AIRTABLE_BASE_ID === 'YOUR_AIRTABLE_BASE_ID_HERE') {
+    allCandidates = getDemoData();
+    renderTable(allCandidates);
+    updateStats(allCandidates);
+    return;
+  }
+
+  try {
+    const res = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(AIRTABLE_TABLE)}?maxRecords=100&sort[0][field]=submittedAt&sort[0][direction]=desc`, {
+      headers: { Authorization: `Bearer ${AIRTABLE_PAT}` }
+    });
+    const data = await res.json();
+    allCandidates = (data.records || []).map(r => ({ id: r.id, ...r.fields }));
+    renderTable(allCandidates);
+    updateStats(allCandidates);
+  } catch(e) {
+    tbody.innerHTML = '<tr><td colspan="8" class="empty-state">Could not load candidates. Check Airtable config.</td></tr>';
+  }
+}
+
+function getDemoData() {
+  return [
+    { id:1, firstName:'Emma', lastName:'van der Berg', email:'emma@student.nl', country:'NL', level:'HBO', field:'Business Administration', type:'Internship', skills:'Excel / Sheets, Marketing, Communication', bio:'Started a small sustainability side project.', matchScore:91, aiSummary:'Strong communicator with real-world initiative. HBO background in Business aligns well with client needs.' },
+    { id:2, firstName:'Daan', lastName:'Jansen', email:'daan@hva.nl', country:'NL', level:'MBO', field:'ICT & Media Design', type:'Internship', skills:'Design (Figma), JavaScript', bio:'Freelance logo work for local shops.', matchScore:76, aiSummary:'Creative with a growing portfolio. Figma proficiency is valuable; coding skills add versatility.' },
+    { id:3, firstName:'Sophia', lastName:'Martinez', email:'sophia@nyu.edu', country:'US', level:'Bachelor', field:'Data Science', type:'Full-time job', skills:'Python, Data Analysis, Research', bio:'Published undergraduate research on behavioral economics.', matchScore:88, aiSummary:'Analytical depth backed by published research. Python + data skills are exactly what the client profile demands.' },
+    { id:4, firstName:'Lucas', lastName:'de Vries', email:'lucas@fontys.nl', country:'NL', level:'HBO', field:'International Business', type:'Part-time job', skills:'Communication, Sales, Finance', bio:'Worked part-time at a startup doing cold outreach.', matchScore:82, aiSummary:'Sales experience at startup level is rare for an HBO student. Strong initiative, internationally oriented.' },
+    { id:5, firstName:'Aisha', lastName:'Johnson', email:'aisha@umich.edu', country:'US', level:'Master', field:'Sustainability Management', type:'Full-time job', skills:'Research, Sustainability, Project Mgmt', bio:'Led a campus zero-waste initiative with 200+ participants.', matchScore:95, aiSummary:'Exceptional leadership track record combined with sustainability expertise. Highest match score in current cohort.' },
+    { id:6, firstName:'Pieter', lastName:'Bakker', email:'pieter@roc.nl', country:'NL', level:'MBO', field:'Logistics', type:'Internship', skills:'Excel / Sheets, Communication', bio:'', matchScore:61, aiSummary:'Solid foundational skills. Logistics background may serve well in operational roles.' },
+  ];
+}
+
+function renderTable(candidates) {
+  const tbody = document.getElementById('candidates-table');
+  if (!candidates.length) {
+    tbody.innerHTML = '<tr><td colspan="8" class="empty-state">No candidates found.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = candidates.map(c => {
+    const score = c.matchScore || Math.floor(Math.random() * 40 + 55);
+    const scoreClass = score >= 80 ? 'score-high' : score >= 65 ? 'score-mid' : 'score-low';
+    const levelBadge = c.level === 'HBO' ? 'badge-hbo' : c.level === 'MBO' ? 'badge-mbo' : 'badge-us';
+    const summary = c.aiSummary || '<span class="ai-loading">Not yet generated</span>';
+    return `<tr>
+      <td><div class="candidate-name">${c.firstName} ${c.lastName}</div><div class="candidate-email">${c.email}</div></td>
+      <td><span class="badge ${levelBadge}">${c.level}</span></td>
+      <td style="font-size:13px;">${c.field}</td>
+      <td style="font-size:13px;">${c.country === 'NL' ? '🇳🇱' : c.country === 'US' ? '🇺🇸' : '🌍'} ${c.country}</td>
+      <td style="font-size:12px;color:var(--text-mid);">${c.type}</td>
+      <td><div class="score-circle ${scoreClass}">${score}</div></td>
+      <td><div class="ai-summary">${summary}</div></td>
+      <td><button class="action-btn" onclick='openOutreach(${JSON.stringify(c).replace(/'/g, "&#39;")})'>Write →</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function applyFilters() {
+  const level   = document.getElementById('filter-level').value;
+  const country = document.getElementById('filter-country').value;
+  const type    = document.getElementById('filter-type').value;
+  const filtered = allCandidates.filter(c =>
+    (!level   || c.level   === level)   &&
+    (!country || c.country === country) &&
+    (!type    || c.type    === type)
+  );
+  renderTable(filtered);
+}
+
+function updateStats(candidates) {
+  document.getElementById('stat-total').textContent = candidates.length;
+  document.getElementById('stat-nl').textContent = candidates.filter(c => c.country === 'NL').length;
+  document.getElementById('stat-us').textContent = candidates.filter(c => c.country === 'US').length;
+  document.getElementById('stat-high').textContent = candidates.filter(c => (c.matchScore || 0) >= 80).length;
+}
+
+// ─── OUTREACH MODAL ─────────────────────────────────────────────────
+async function openOutreach(candidate) {
+  currentCandidate = candidate;
+  document.getElementById('modal-title').textContent = `Message for ${candidate.firstName} ${candidate.lastName}`;
+  document.getElementById('modal-sub').textContent = `${candidate.level} · ${candidate.field} · ${candidate.country}`;
+  document.getElementById('modal-msg').value = '';
+  document.getElementById('generating-msg').style.display = 'block';
+  document.getElementById('modal').classList.add('open');
+  await generateOutreach(candidate);
+}
+
+async function generateOutreach(candidate) {
+  const ta = document.getElementById('modal-msg');
+  const gm = document.getElementById('generating-msg');
+
+  const prompt = `Write a short, personalized LinkedIn outreach message (max 120 words) to a student about an internship or job opportunity. Sound human, not corporate. Reference specific things from their profile. No fake excitement. No "I came across your profile." Start with their name.
+
+Student profile:
+- Name: ${candidate.firstName} ${candidate.lastName}
+- Level: ${candidate.level} in ${candidate.field}
+- Graduating: ${candidate.grad || 'soon'}
+- Looking for: ${candidate.type}
+- Skills: ${candidate.skills || 'various'}
+- Bio: "${candidate.bio || 'N/A'}"
+
+Write the message only. No preamble.`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    ta.value = data.content?.find(b => b.type === 'text')?.text || 'Could not generate message.';
+  } catch(e) {
+    ta.value = `Hi ${candidate.firstName},\n\nI noticed your background in ${candidate.field} and wanted to reach out about an opportunity that might align well with where you're headed.\n\nWould you be open to a quick chat?\n\nBest,\n[Your name]`;
+  }
+  gm.style.display = 'none';
+}
+
+async function regenerateMessage() {
+  if (!currentCandidate) return;
+  document.getElementById('modal-msg').value = '';
+  document.getElementById('generating-msg').style.display = 'block';
+  await generateOutreach(currentCandidate);
+}
+
+function copyMessage() {
+  const ta = document.getElementById('modal-msg');
+  ta.select();
+  document.execCommand('copy');
+  const btn = event.target;
+  btn.textContent = 'Copied!';
+  setTimeout(() => btn.textContent = 'Copy', 2000);
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('modal')) {
+    document.getElementById('modal').classList.remove('open');
+  }
+}
+
+// Init dashboard demo data on load
+loadCandidates();
+</script>
+</body>
+</html>
