@@ -15,7 +15,7 @@
         h1 {
             color: #2c5f2d;
         }
-        textarea, input, button {
+        textarea, button {
             width: 100%;
             padding: 10px;
             margin: 10px 0;
@@ -48,20 +48,21 @@
     <h1>🌱 Dutch SME CSRD Compliance Tool</h1>
     <p>Ask a question about CSRD compliance for your Dutch SME:</p>
     <textarea id="query" rows="4" placeholder="E.g., 'What are the GHG reporting requirements for my bakery?'"></textarea>
-    <input type="text" id="groqApiKey" placeholder="Enter your Groq API key">
     <button onclick="askGroq()">Get Compliance Guidance</button>
     <div class="loading" id="loading">Loading...</div>
     <div id="response"></div>
 
     <script>
+        // Hardcoded Groq API key
+        const GROQ_API_KEY = "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";
+
         async function askGroq() {
             const query = document.getElementById('query').value;
-            const apiKey = document.getElementById('groqApiKey').value;
             const responseDiv = document.getElementById('response');
             const loadingDiv = document.getElementById('loading');
 
-            if (!query || !apiKey) {
-                responseDiv.innerHTML = "Please enter both a question and your Groq API key.";
+            if (!query) {
+                responseDiv.innerHTML = "Please enter a question.";
                 return;
             }
 
@@ -73,7 +74,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${apiKey}`
+                        'Authorization': `Bearer ${GROQ_API_KEY}`
                     },
                     body: JSON.stringify({
                         "messages": [
